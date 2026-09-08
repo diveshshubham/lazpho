@@ -16,6 +16,10 @@ Notable changes are recorded here using a concise Keep-a-Changelog-inspired stru
 - Added Load Lab managed fixture callbacks for safe mutating-endpoint tests and upgraded Signalboard's isolated direct-versus-Lazpho workflow to produce combined HTML/JSON evidence reports.
 - Added a safety-bounded, repeated Signalboard stress-test matrix for 10k through 1m requested-RPS inputs, with honest generator-limit markers, application resource metrics, and consolidated median HTML/JSON reports.
 
+### Fixed
+
+- Replaced shell-dependent test globs with deterministic cross-platform discovery so Node 18 and 20 CI execute the compiled suite on Linux.
+
 ### Compatibility
 
 - Node 18/20/22/24, TypeScript 5.7.2/current 5.x, and documented Express/Fastify/NestJS boundaries remain automated compatibility targets.

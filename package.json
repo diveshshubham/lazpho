@@ -99,7 +99,7 @@
     "release:readiness": "npm run release:dry-run && npm run readiness:audit",
     "prepack": "npm run build:package",
     "prepublishOnly": "npm run release:check",
-    "test": "npm run build && node --test dist/test/**/*.test.js scripts/*.test.mjs",
+    "test": "npm run build && node scripts/run-tests.mjs",
     "benchmark": "npm run build && node dist/benchmark/http-overhead.js && node dist/benchmark/concurrency-overhead.js && node dist/benchmark/adaptive-decision.js",
     "benchmark:concurrency": "npm run build && node dist/benchmark/concurrency-overhead.js",
     "benchmark:observability": "npm run build && node dist/benchmark/observability-overhead.js",
