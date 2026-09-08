@@ -72,6 +72,18 @@ The black-box validator discovers the five registered APIs from `/api/state` and
 
 The validator reads the per-instance token from the loopback-only dashboard page without printing it. It is a local test helper, not a remote dashboard client.
 
+## Test MongoDB faults and recovery
+
+The Stage 3B runner places a bounded repository-owned TCP fault proxy between Signalboard and the configured MongoDB instance, then compares direct and Lazpho modes through healthy, latency-spike, transport-outage, recovery, and mixed-fault soak phases:
+
+```bash
+npm run test:faults
+```
+
+It uses isolated temporary databases and removes them afterward. JSON and HTML reports are written to `load-reports/fault-*.json` and `.html`. Tune bounded runs with `FAULT_CONCURRENCY`, `FAULT_BATCH_REQUESTS`, `FAULT_LATENCY_MS`, and `FAULT_SOAK_SECONDS`.
+
+Connection cuts simulate transport loss and failover-style reconnect pressure. They do not simulate a replica-set election, replication lag, rollback, write concern, or data-consistency behavior. Use a disposable production-like replica set for those tests.
+
 ## API
 
 - `GET /api/ideas`

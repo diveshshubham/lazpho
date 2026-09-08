@@ -31,6 +31,11 @@ const database = factory?.concurrency({
   limit: 8,
   maxQueueSize: 40,
   maxQueueWaitMs: 750,
+  circuitBreaker: {
+    failureThreshold: 5,
+    resetTimeoutMs: 500,
+    halfOpenMaxAttempts: 1
+  },
   bulkheads: {
     reads: { maxConcurrent: 6, maxQueue: 30 },
     writes: { maxConcurrent: 3, maxQueue: 12 }
