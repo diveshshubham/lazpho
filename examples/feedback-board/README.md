@@ -84,6 +84,21 @@ It uses isolated temporary databases and removes them afterward. JSON and HTML r
 
 Connection cuts simulate transport loss and failover-style reconnect pressure. They do not simulate a replica-set election, replication lag, rollback, write concern, or data-consistency behavior. Use a disposable production-like replica set for those tests.
 
+## Test MongoDB replica-set elections
+
+Stage 3C runs Signalboard against a disposable three-member MongoDB 8 replica set, steps down the current primary while mixed reads and writes are active, waits for a different primary, and verifies recovery and majority durability:
+
+```bash
+docker compose -f docker-compose.replica-set.yml up --exit-code-from test test
+docker compose -f docker-compose.replica-set.yml down --volumes
+```
+
+Docker Desktop (or Docker Engine with Compose v2) is the only external prerequisite. The test runs Node and MongoDB inside an isolated `lazpho-stage3c` Compose project, installs dependencies into anonymous volumes, uses temporary MongoDB storage, and writes JSON/HTML reports to `load-reports/replica-*.json` and `.html`. The cleanup command removes only that disposable project's containers, network, and anonymous volumes.
+
+Defaults use 24 workers, a 12-second election workload, and at most 3,000 HTTP requests per mode. Override `REPLICA_CONCURRENCY`, `REPLICA_DURATION_SECONDS`, or `REPLICA_MAX_REQUESTS` for a bounded smoke or longer diagnostic. The runner requires a confirmed primary change, healthy post-election reads and writes, all acknowledged writes to remain present exactly once, pre/post sentinels to become majority-readable on all three members, zero Lazpho limit violations, and a fully drained controller.
+
+This is evidence for one local three-member topology. It is not proof against network partitions, replication lag, rollbacks, regional loss, storage failure, or every write/read concern combination.
+
 ## API
 
 - `GET /api/ideas`

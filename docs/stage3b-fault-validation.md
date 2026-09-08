@@ -40,7 +40,7 @@ The direct mode's successful mixed-soak requests do not mean the outage was free
 ## Interpretation limits
 
 - This validates bounded application behavior and recovery under TCP latency and connection loss; it is not a throughput benchmark.
-- A socket cut is only failover-style transport pressure. It does not reproduce MongoDB elections, replication lag, rollback, write concern, retryable-write semantics, or consistency behavior.
+- A socket cut is only failover-style transport pressure. It does not reproduce MongoDB elections, replication lag, rollback, write concern, retryable-write semantics, or consistency behavior. See the follow-on [Stage 3C replica-set validation](stage3c-replica-set-validation.md) for bounded election and majority-durability evidence.
 - Results depend on the local OS, driver, MongoDB version, payload, connection pool, and timing.
 - A protective rejection or timeout is not a successful business operation, but it can be preferable to unbounded dependency work and uncontrolled tail latency.
 - Production-like replica-set and network-emulation testing remains required before making database failover claims.

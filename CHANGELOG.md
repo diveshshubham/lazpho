@@ -9,6 +9,7 @@ Notable changes are recorded here using a concise Keep-a-Changelog-inspired stru
 - Added a Signalboard Load Lab black-box validator covering every registered API in once, latency, and bounded-load modes, including report, authorization, controller-limit, and managed-fixture checks.
 - Added a reproducible Stage 3 validation record with local MongoDB A/B evidence, resource-soak results, interpretation boundaries, and remaining distributed-test work.
 - Added a repository-owned MongoDB TCP fault proxy and Stage 3B runner for latency spikes, transport loss, breaker behavior, recovery, and mixed-fault application soaking, with JSON/HTML reports and a bounded Linux CI gate.
+- Added a disposable three-member MongoDB 8 replica-set lab and Stage 3C runner covering real primary elections, majority-visible sentinels, acknowledged-write preservation, post-election recovery, Lazpho bounds, JSON/HTML reports, and CI evidence.
 
 ### Fixed
 

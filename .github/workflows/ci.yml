@@ -247,6 +247,17 @@ jobs:
           FAULT_LATENCY_MS: 50
           FAULT_SOAK_SECONDS: 3
         run: npm run test:faults
+      - name: MongoDB replica-set election and consistency smoke
+        working-directory: examples/feedback-board
+        env:
+          REPLICA_CONCURRENCY: 12
+          REPLICA_DURATION_SECONDS: 6
+          REPLICA_MAX_REQUESTS: 800
+        run: docker compose -f docker-compose.replica-set.yml up --exit-code-from test test
+      - name: Stop MongoDB replica-set lab
+        if: always()
+        working-directory: examples/feedback-board
+        run: docker compose -f docker-compose.replica-set.yml down --volumes
       - uses: actions/upload-artifact@v7
         if: always()
         with:
