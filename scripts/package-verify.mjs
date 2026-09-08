@@ -76,7 +76,7 @@ async function validateMetadata() {
 function validateFileList(paths) {
   const allowed = /^(?:dist\/|docs\/[^/]+\.md$|README\.md$|LICENSE$|CHANGELOG\.md$|SECURITY\.md$|CONTRIBUTING\.md$|package\.json$)/;
   for (const path of paths) assert.match(path, allowed, `Unexpected package path: ${path}`);
-  for (const required of ['LICENSE', 'README.md', 'CHANGELOG.md', 'SECURITY.md', 'CONTRIBUTING.md', 'docs/api.md', 'docs/operations.md', 'docs/compatibility.md', 'docs/versioning.md', 'docs/migration.md', 'docs/phase8-validation.md', 'docs/phase8b-bottleneck-lab.md', 'docs/phase8-application-integration.md', 'docs/vision-and-usage.md', 'docs/load-lab.md', 'docs/1.0-readiness.md', 'package.json']) assert.ok(paths.includes(required), `Missing ${required}`);
+  for (const required of ['LICENSE', 'README.md', 'CHANGELOG.md', 'SECURITY.md', 'CONTRIBUTING.md', 'docs/api.md', 'docs/operations.md', 'docs/compatibility.md', 'docs/versioning.md', 'docs/migration.md', 'docs/phase8-validation.md', 'docs/phase8b-bottleneck-lab.md', 'docs/phase8-application-integration.md', 'docs/vision-and-usage.md', 'docs/load-lab.md', 'docs/stage3-validation.md', 'docs/1.0-readiness.md', 'package.json']) assert.ok(paths.includes(required), `Missing ${required}`);
   for (const target of Object.values(packageJson.exports)) {
     for (const path of [target.import, target.types].map((value) => value.replace(/^\.\//, ''))) {
       assert.ok(paths.includes(path), `Missing exported artifact ${path}`);

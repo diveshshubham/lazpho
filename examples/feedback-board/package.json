@@ -8,7 +8,8 @@
     "start": "node server.js",
     "compare": "node scripts/compare.mjs",
     "test:matrix": "node scripts/test-matrix.mjs",
-    "check": "node --check server.js && node --check public/app.js && node --check scripts/compare.mjs && node --check scripts/test-matrix.mjs"
+    "test:load-lab": "node scripts/validate-load-lab.mjs",
+    "check": "node --check server.js && node --check public/app.js && node --check scripts/compare.mjs && node --check scripts/test-matrix.mjs && node --check scripts/validate-load-lab.mjs"
   },
   "dependencies": {
     "express": "^5.2.1",

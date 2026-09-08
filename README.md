@@ -689,7 +689,7 @@ The supported runtime matrix, eleven public package subpaths, ESM policy, TypeSc
 
 `lazpho/config` exposes deterministic preset, resolution, validation, and inspection helpers. `lazpho/application` exposes the central application registry and safe scenario dashboard. `lazpho/load-lab` exposes the opt-in endpoint test dashboard and reports. `lazpho/fetch` exposes protected native-fetch integration. `lazpho/node-http` exposes instrumentation and incoming request cancellation primitives. `lazpho/observability` exposes immutable pull collection and manual push export, while `lazpho/opentelemetry` exposes the optional injected-Meter bridge. `lazpho/express`, `lazpho/fastify`, and `lazpho/nestjs` are isolated optional framework adapters. Adapter and Load Lab code are not imported by the main entry point. Adaptive policy internals, EWMA helpers, queue entries, and scheduling helpers are intentionally not public API.
 
-The package ships ESM JavaScript and TypeScript declarations from `dist`, its documentation, changelog, security policy, contributing guide, README, and MIT license. Benchmarks are environment-specific and demonstrate probing, protection, queue drain, and recovery rather than throughput or latency guarantees. Repository metadata is intentionally absent until a canonical public repository URL is available.
+The package ships ESM JavaScript and TypeScript declarations from `dist`, its documentation, changelog, security policy, contributing guide, README, and MIT license. Benchmarks are environment-specific and demonstrate probing, protection, queue drain, and recovery rather than throughput or latency guarantees. Canonical repository, issue, homepage, and security-reporting metadata point to `diveshshubham/lazpho`.
 
 ### Documentation
 
@@ -697,6 +697,7 @@ The package ships ESM JavaScript and TypeScript declarations from `dist`, its do
 - [API reference](docs/api.md): entry points, errors, public types, metrics, and HTTP mapping.
 - [Operations guide](docs/operations.md): architecture, tuning, failure handling, cardinality, and troubleshooting.
 - [Load Lab](docs/load-lab.md): safe endpoint registration, dashboard actions, reports, and honest RPS interpretation.
+- [Stage 3 validation](docs/stage3-validation.md): reproducible stress, soak, MongoDB A/B, and real-dashboard evidence.
 - [Compatibility contract](docs/compatibility.md): supported runtimes, TypeScript/framework matrix, and public surface.
 - [Versioning policy](docs/versioning.md): stable versus internal APIs, SemVer, deprecation, and release notes.
 - [Migration guide](docs/migration.md): package rename and future breaking-release instructions.

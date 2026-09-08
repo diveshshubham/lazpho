@@ -60,6 +60,18 @@ npm run test:matrix
 
 Reports are written to `load-reports/matrix-*.html` and `.json`, with detailed A/B reports alongside them. Use coordinated distributed generators for a credible uncapped million-RPS test.
 
+## Validate every Load Lab action
+
+Start Signalboard with `LOAD_LAB=true`, then run this in a second terminal:
+
+```bash
+npm run test:load-lab
+```
+
+The black-box validator discovers the five registered APIs from `/api/state` and exercises each with **Send once**, **Test latency**, and **Load test** semantics. It checks the loopback dashboard and content-security policy, rejects an unauthenticated mutation, downloads every JSON/HTML report, confirms observed controller work stayed within configured limits, and checks that no run-owned MongoDB fixture remains. Defaults use five measured latency requests and a one-second 1,000 requested-RPS load per endpoint; use `LOAD_LAB_VALIDATION_RPS`, `LOAD_LAB_VALIDATION_DURATION_SECONDS`, and `LOAD_LAB_VALIDATION_LATENCY_REQUESTS` to tune the validation.
+
+The validator reads the per-instance token from the loopback-only dashboard page without printing it. It is a local test helper, not a remote dashboard client.
+
 ## API
 
 - `GET /api/ideas`
