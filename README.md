@@ -699,6 +699,7 @@ The package ships ESM JavaScript and TypeScript declarations from `dist`, its do
 - [Load Lab](docs/load-lab.md): safe endpoint registration, dashboard actions, reports, and honest RPS interpretation.
 - [Stage 3 validation](docs/stage3-validation.md): reproducible stress, soak, MongoDB A/B, and real-dashboard evidence.
 - [Stage 3B fault validation](docs/stage3b-fault-validation.md): controlled MongoDB latency, transport loss, breaker recovery, and mixed-fault soak evidence.
+- [Stage 3C replica-set validation](docs/stage3c-replica-set-validation.md): real three-member MongoDB elections, majority durability checks, and bounded application recovery evidence.
 - [Compatibility contract](docs/compatibility.md): supported runtimes, TypeScript/framework matrix, and public surface.
 - [Versioning policy](docs/versioning.md): stable versus internal APIs, SemVer, deprecation, and release notes.
 - [Migration guide](docs/migration.md): package rename and future breaking-release instructions.

@@ -1,0 +1,66 @@
+name: lazpho-stage3c
+
+services:
+  mongo1:
+    image: mongo:8
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--oplogSize", "128"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ ping: 1 }).ok"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    tmpfs: [/data/db]
+
+  mongo2:
+    image: mongo:8
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--oplogSize", "128"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ ping: 1 }).ok"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    tmpfs: [/data/db]
+
+  mongo3:
+    image: mongo:8
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--oplogSize", "128"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ ping: 1 }).ok"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    tmpfs: [/data/db]
+
+  replica-init:
+    image: mongo:8
+    depends_on:
+      mongo1: { condition: service_healthy }
+      mongo2: { condition: service_healthy }
+      mongo3: { condition: service_healthy }
+    volumes:
+      - ./scripts/init-replica-set.js:/scripts/init-replica-set.js:ro
+    entrypoint: ["mongosh", "--host", "mongo1:27017", "--quiet", "/scripts/init-replica-set.js"]
+
+  test:
+    image: node:24-bookworm-slim
+    depends_on:
+      replica-init: { condition: service_completed_successfully }
+    working_dir: /workspace
+    environment:
+      MONGODB_URI: mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0&retryWrites=true&w=majority&readConcernLevel=majority
+      npm_config_audit: "false"
+      npm_config_fund: "false"
+      REPLICA_CONCURRENCY: ${REPLICA_CONCURRENCY:-24}
+      REPLICA_DURATION_SECONDS: ${REPLICA_DURATION_SECONDS:-12}
+      REPLICA_MAX_REQUESTS: ${REPLICA_MAX_REQUESTS:-3000}
+    volumes:
+      - ../..:/workspace
+      - root_modules:/workspace/node_modules
+      - example_modules:/workspace/examples/feedback-board/node_modules
+    command: >-
+      sh -lc "npm ci && npm run build:package &&
+      cd examples/feedback-board && npm ci && npm run test:replica-set"
+
+volumes:
+  root_modules:
+  example_modules:
