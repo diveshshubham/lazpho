@@ -239,6 +239,14 @@ jobs:
             exit 1
           fi
           npm run test:load-lab
+      - name: MongoDB transport fault and recovery smoke
+        working-directory: examples/feedback-board
+        env:
+          FAULT_BATCH_REQUESTS: 20
+          FAULT_CONCURRENCY: 16
+          FAULT_LATENCY_MS: 50
+          FAULT_SOAK_SECONDS: 3
+        run: npm run test:faults
       - uses: actions/upload-artifact@v7
         if: always()
         with:
