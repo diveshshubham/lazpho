@@ -115,14 +115,16 @@ test('collector reflects running, draining, and closed lifecycle without delayin
   assert.equal(collect().lifecycle, 'closed');
 });
 
-test('collector tracks breaker open, half-open recovery, and monotonic counters', async () => {
+test('collector tracks breaker open, half-open recovery, and monotonic counters', async (context) => {
+  let now = 1_000;
+  context.mock.method(Date, 'now', () => now);
   const controller = createFactory().concurrency({ name: 'metrics-breaker', limit: 1, circuitBreaker: { failureThreshold: 1, resetTimeoutMs: 2 } });
   const collect = createMetricsCollector(controller);
   await assert.rejects(controller.run(() => { throw new Error('down'); }));
   assert.equal(collect().breaker?.state, 'open');
   assert.equal(collect().breaker?.breakerTrips, 1);
   await assert.rejects(controller.run(() => undefined));
-  await delay(3);
+  now += 3;
   await controller.run(() => undefined);
   const recovered = collect().breaker;
   assert.equal(recovered?.state, 'closed');
