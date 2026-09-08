@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const documents = ['README.md', 'CHANGELOG.md', 'SECURITY.md', 'CONTRIBUTING.md', 'docs/api.md', 'docs/operations.md', 'docs/compatibility.md', 'docs/versioning.md', 'docs/migration.md', 'docs/phase8-validation.md', 'docs/phase8b-bottleneck-lab.md', 'docs/phase8-application-integration.md', 'docs/vision-and-usage.md', 'docs/load-lab.md', 'docs/1.0-readiness.md'];
+const documents = ['README.md', 'CHANGELOG.md', 'SECURITY.md', 'CONTRIBUTING.md', 'docs/api.md', 'docs/operations.md', 'docs/compatibility.md', 'docs/versioning.md', 'docs/migration.md', 'docs/phase8-validation.md', 'docs/phase8b-bottleneck-lab.md', 'docs/phase8-application-integration.md', 'docs/vision-and-usage.md', 'docs/load-lab.md', 'docs/stage3-validation.md', 'docs/1.0-readiness.md'];
 
 test('documentation links resolve to repository files', async () => {
   for (const document of documents) {

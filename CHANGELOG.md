@@ -4,6 +4,11 @@ Notable changes are recorded here using a concise Keep-a-Changelog-inspired stru
 
 ## Unreleased
 
+### Added
+
+- Added a Signalboard Load Lab black-box validator covering every registered API in once, latency, and bounded-load modes, including report, authorization, controller-limit, and managed-fixture checks.
+- Added a reproducible Stage 3 validation record with local MongoDB A/B evidence, resource-soak results, interpretation boundaries, and remaining distributed-test work.
+
 ## 0.1.0-rc.1 - 2026-09-08
 
 ### Added

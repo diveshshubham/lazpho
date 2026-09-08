@@ -172,6 +172,81 @@ jobs:
             artifacts/*.sha256
           retention-days: 3
 
+  signalboard:
+    name: Signalboard MongoDB and Load Lab
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mongo:
+        image: mongo:8
+        ports:
+          - 27018:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:package
+      - run: npm ci
+        working-directory: examples/feedback-board
+      - run: npm run check
+        working-directory: examples/feedback-board
+      - name: Direct versus Lazpho smoke comparison
+        working-directory: examples/feedback-board
+        env:
+          COMPARE_REQUESTS: 25
+          COMPARE_CONCURRENCY: 16
+          COMPARE_DB_LATENCY_MS: 20
+        run: npm run compare
+      - name: Validate every Load Lab action
+        working-directory: examples/feedback-board
+        env:
+          LOAD_LAB: true
+          LOAD_LAB_PORT: 1913
+          LOAD_LAB_URL: http://127.0.0.1:1913
+          LOAD_LAB_VALIDATION_LATENCY_REQUESTS: 3
+          LOAD_LAB_VALIDATION_RPS: 250
+          MONGODB_DATABASE: lazpho_ci_load_lab
+          SIGNALBOARD_URL: http://127.0.0.1:3000
+          SIMULATED_DB_LATENCY_MS: 20
+          USE_LAZPHO: true
+        run: |
+          set -euo pipefail
+          npm start > /tmp/signalboard.log 2>&1 &
+          app_pid=$!
+          cleanup() {
+            kill "$app_pid" 2>/dev/null || true
+            wait "$app_pid" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          ready=false
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:1913/api/state; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != true ]; then
+            cat /tmp/signalboard.log
+            exit 1
+          fi
+          npm run test:load-lab
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: signalboard-validation-${{ github.run_id }}
+          path: examples/feedback-board/load-reports/
+          if-no-files-found: error
+          retention-days: 14
+
   benchmarks:
     name: Informational functional benchmarks
     runs-on: ubuntu-latest
