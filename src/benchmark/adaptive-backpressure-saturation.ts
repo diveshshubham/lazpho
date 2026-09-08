@@ -103,7 +103,9 @@ async function run(strategy: Strategy): Promise<Result> {
   const timeline: WindowResult[] = [];
   const startedAt = performance.now();
 
-  for (let window = 1; window <= 36; window += 1) {
+  // Keep a full twelve-window resume phase so metrics from the slowdown can
+  // age out before we require a healthy probe, including on noisy CI hosts.
+  for (let window = 1; window <= 44; window += 1) {
     const { phase, offered, multiplier } = phaseFor(window);
     const limitBefore = controller.getLimit();
     const work = Array.from({ length: offered }, async (_, index) => {
