@@ -1,0 +1,146 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing v<package-version> tag to validate without publishing
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Validate release version
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      package_name: ${{ steps.version.outputs.package_name }}
+      package_version: ${{ steps.version.outputs.package_version }}
+      release_tag: ${{ steps.version.outputs.release_tag }}
+      npm_dist_tag: ${{ steps.version.outputs.npm_dist_tag }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - id: version
+        env:
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+        run: npm run release:version:check
+      - name: Ensure manual dry-run tag points to this commit
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_TYPE" = "tag"
+          test "$GITHUB_REF_NAME" = "$RELEASE_TAG"
+
+  validation:
+    name: Full release gates
+    needs: version
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  release-package:
+    name: Build and verify exact release artifact
+    needs: [version, validation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run package:verify
+      - name: Record source provenance
+        env:
+          RELEASE_TAG: ${{ needs.version.outputs.release_tag }}
+          PACKAGE_VERSION: ${{ needs.version.outputs.package_version }}
+        run: |
+          set -euo pipefail
+          echo "commit=${GITHUB_SHA}"
+          echo "tag=${RELEASE_TAG}"
+          echo "package_version=${PACKAGE_VERSION}"
+          echo "node=$(node --version)"
+          cat artifacts/*.sha256
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ needs.version.outputs.package_name }}-${{ needs.version.outputs.package_version }}
+          path: artifacts/
+          retention-days: 30
+
+  publish:
+    name: Publish exact tarball to npm
+    if: github.event_name == 'push'
+    needs: [version, release-package]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm ci
+      - uses: actions/download-artifact@v7
+        with:
+          name: ${{ needs.version.outputs.package_name }}-${{ needs.version.outputs.package_version }}
+          path: artifacts
+      - name: Verify checksum and unpublished version
+        run: |
+          set -euo pipefail
+          node -e "const p=require('./package.json'); if (!p.repository) throw new Error('Set the canonical package.json repository before npm publishing.')"
+          node -e "const s=require('semver'); const v=require('child_process').execFileSync('npm',['--version'],{encoding:'utf8'}).trim(); if (!s.gte(v,'11.5.1')) throw new Error('Trusted publishing requires npm >=11.5.1; found '+v)"
+          cd artifacts
+          sha256sum --check *.sha256
+          cd ..
+          node scripts/release-version.mjs check-unpublished
+      - name: Publish validated artifact
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_DIST_TAG: ${{ needs.version.outputs.npm_dist_tag }}
+        run: npm publish artifacts/*.tgz --provenance --tag "$NPM_DIST_TAG"
+
+  github-release:
+    name: Create GitHub Release after npm publish
+    if: github.event_name == 'push'
+    needs: [version, release-package, publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: ${{ needs.version.outputs.package_name }}-${{ needs.version.outputs.package_version }}
+          path: artifacts
+      - name: Create stable GitHub Release
+        if: needs.version.outputs.prerelease == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.version.outputs.release_tag }}
+        run: gh release create "$RELEASE_TAG" artifacts/* --verify-tag --generate-notes --title "$RELEASE_TAG"
+      - name: Create prerelease GitHub Release
+        if: needs.version.outputs.prerelease == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.version.outputs.release_tag }}
+        run: gh release create "$RELEASE_TAG" artifacts/* --verify-tag --generate-notes --prerelease --title "$RELEASE_TAG"

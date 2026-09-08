@@ -1,0 +1,461 @@
+{
+  "errors": {
+    "BulkheadQueueFullError": {
+      "base": "Error",
+      "classification": "bulkhead_queue_full",
+      "code": "FACTORY_BULKHEAD_QUEUE_FULL",
+      "metadata": [
+        "bulkhead",
+        "controller",
+        "maxQueue",
+        "name"
+      ]
+    },
+    "CircuitBreakerOpenError": {
+      "base": "Error",
+      "classification": "breaker_open",
+      "code": "FACTORY_CIRCUIT_BREAKER_OPEN",
+      "metadata": [
+        "controller",
+        "name"
+      ]
+    },
+    "ControllerAbortError": {
+      "base": "QueueAbortedError",
+      "classification": "aborted",
+      "code": "FACTORY_CONTROLLER_ABORTED",
+      "metadata": [
+        "controller",
+        "name"
+      ]
+    },
+    "ControllerLifecycleError": {
+      "base": "Error",
+      "classification": "lifecycle",
+      "code": "FACTORY_CONTROLLER_CLOSED",
+      "metadata": [
+        "controller",
+        "name",
+        "operation"
+      ]
+    },
+    "ControllerLimitError": {
+      "base": "Error",
+      "classification": "controller_limit",
+      "code": "FACTORY_CONTROLLER_LIMIT",
+      "metadata": [
+        "maxControllers",
+        "name"
+      ]
+    },
+    "ControllerTimeoutError": {
+      "base": "ControllerAbortError",
+      "classification": "timeout",
+      "code": "FACTORY_CONTROLLER_TIMEOUT",
+      "metadata": [
+        "controller",
+        "name",
+        "timeoutMs"
+      ]
+    },
+    "DuplicateControllerNameError": {
+      "base": "Error",
+      "classification": "duplicate_controller",
+      "code": "FACTORY_DUPLICATE_CONTROLLER",
+      "metadata": [
+        "controller",
+        "name"
+      ]
+    },
+    "QueueAbortedError": {
+      "base": "Error",
+      "classification": "queue_aborted",
+      "code": "FACTORY_QUEUE_ABORTED",
+      "metadata": [
+        "controller",
+        "name"
+      ]
+    },
+    "QueueFullError": {
+      "base": "Error",
+      "classification": "queue_full",
+      "code": "FACTORY_BACKPRESSURE_REJECTED",
+      "metadata": [
+        "controller",
+        "maxQueueSize",
+        "name"
+      ]
+    },
+    "QueueWaitTimeoutError": {
+      "base": "Error",
+      "classification": "queue_wait_timeout",
+      "code": "FACTORY_QUEUE_WAIT_TIMEOUT",
+      "metadata": [
+        "controller",
+        "maxQueueWaitMs",
+        "name"
+      ]
+    },
+    "UnknownBulkheadError": {
+      "base": "Error",
+      "classification": "unknown_bulkhead",
+      "code": "FACTORY_UNKNOWN_BULKHEAD",
+      "metadata": [
+        "bulkhead",
+        "controller",
+        "name"
+      ]
+    }
+  },
+  "httpMapping": {
+    "BulkheadQueueFullError": {
+      "code": "FACTORY_BULKHEAD_QUEUE_FULL",
+      "statusCode": 503
+    },
+    "CircuitBreakerOpenError": {
+      "code": "FACTORY_CIRCUIT_BREAKER_OPEN",
+      "statusCode": 503
+    },
+    "ControllerAbortError": null,
+    "ControllerLifecycleError": {
+      "code": "FACTORY_CONTROLLER_CLOSED",
+      "statusCode": 503
+    },
+    "ControllerLimitError": null,
+    "ControllerTimeoutError": {
+      "code": "FACTORY_CONTROLLER_TIMEOUT",
+      "statusCode": 504
+    },
+    "DuplicateControllerNameError": null,
+    "QueueAbortedError": null,
+    "QueueFullError": {
+      "code": "FACTORY_BACKPRESSURE_REJECTED",
+      "statusCode": 503
+    },
+    "QueueWaitTimeoutError": {
+      "code": "FACTORY_QUEUE_WAIT_TIMEOUT",
+      "statusCode": 504
+    },
+    "UnknownBulkheadError": null
+  },
+  "metricNames": {
+    "active": "lazpho.controller.active",
+    "adaptiveErrorRate": "lazpho.adaptive.error_rate",
+    "adaptiveLatencyEwma": "lazpho.adaptive.latency_ewma",
+    "adaptiveTargetLatency": "lazpho.adaptive.target_latency",
+    "breakerRecoveries": "lazpho.breaker.recoveries",
+    "breakerRejected": "lazpho.breaker.rejections",
+    "breakerState": "lazpho.breaker.state",
+    "breakerTrips": "lazpho.breaker.trips",
+    "bulkheadActive": "lazpho.bulkhead.active",
+    "bulkheadMaxConcurrent": "lazpho.bulkhead.max_concurrent",
+    "bulkheadMaxQueue": "lazpho.bulkhead.max_queue",
+    "bulkheadQueued": "lazpho.bulkhead.queued",
+    "bulkheadRejected": "lazpho.operations.bulkhead_rejected",
+    "bulkheadRejections": "lazpho.bulkhead.rejections",
+    "cancelled": "lazpho.operations.cancelled",
+    "completed": "lazpho.operations.completed",
+    "failed": "lazpho.operations.failed",
+    "halfOpenAttempts": "lazpho.breaker.half_open_attempts",
+    "lifecycle": "lazpho.controller.lifecycle",
+    "limit": "lazpho.controller.limit",
+    "queueRejected": "lazpho.operations.queue_rejected",
+    "queued": "lazpho.controller.queued",
+    "rejected": "lazpho.operations.rejected",
+    "retryAttempted": "lazpho.retry.attempted",
+    "retryExhausted": "lazpho.retry.exhausted",
+    "retrySucceeded": "lazpho.retry.succeeded",
+    "timedOut": "lazpho.operations.timed_out"
+  },
+  "numericMappings": {
+    "breaker": {
+      "closed": 0,
+      "half_open": 2,
+      "open": 1
+    },
+    "lifecycle": {
+      "closed": 2,
+      "draining": 1,
+      "running": 0
+    }
+  },
+  "package": {
+    "engines": {
+      "node": ">=18.0.0"
+    },
+    "exports": {
+      ".": {
+        "import": "./dist/index.js",
+        "types": "./dist/index.d.ts"
+      },
+      "./application": {
+        "import": "./dist/application.js",
+        "types": "./dist/application.d.ts"
+      },
+      "./config": {
+        "import": "./dist/config.js",
+        "types": "./dist/config.d.ts"
+      },
+      "./express": {
+        "import": "./dist/adapters/express.js",
+        "types": "./dist/adapters/express.d.ts"
+      },
+      "./fastify": {
+        "import": "./dist/adapters/fastify.js",
+        "types": "./dist/adapters/fastify.d.ts"
+      },
+      "./fetch": {
+        "import": "./dist/adapters/fetch.js",
+        "types": "./dist/adapters/fetch.d.ts"
+      },
+      "./load-lab": {
+        "import": "./dist/load-lab.js",
+        "types": "./dist/load-lab.d.ts"
+      },
+      "./nestjs": {
+        "import": "./dist/adapters/nestjs.js",
+        "types": "./dist/adapters/nestjs.d.ts"
+      },
+      "./node-http": {
+        "import": "./dist/adapters/node-http.js",
+        "types": "./dist/adapters/node-http.d.ts"
+      },
+      "./observability": {
+        "import": "./dist/observability.js",
+        "types": "./dist/observability.d.ts"
+      },
+      "./opentelemetry": {
+        "import": "./dist/adapters/opentelemetry.js",
+        "types": "./dist/adapters/opentelemetry.d.ts"
+      }
+    },
+    "name": "lazpho",
+    "peerDependencies": {
+      "@nestjs/common": ">=10 <12",
+      "express": ">=4.18 <6",
+      "fastify": ">=4 <6",
+      "fastify-plugin": ">=4 <6",
+      "rxjs": ">=7 <8"
+    },
+    "peerDependenciesMeta": {
+      "@nestjs/common": {
+        "optional": true
+      },
+      "express": {
+        "optional": true
+      },
+      "fastify": {
+        "optional": true
+      },
+      "fastify-plugin": {
+        "optional": true
+      },
+      "rxjs": {
+        "optional": true
+      }
+    },
+    "sideEffects": false,
+    "type": "module"
+  },
+  "presets": {
+    "balanced": {
+      "adaptive": {
+        "decisionHistorySize": 50,
+        "decreaseFactor": 0.8,
+        "errorDecreaseFactor": 0.5,
+        "evaluationIntervalMs": 5000,
+        "ewmaAlpha": 0.2,
+        "healthyEvaluations": 2,
+        "increaseStep": 2,
+        "maxErrorRate": 0.02,
+        "maxLimit": 32,
+        "minLimit": 4,
+        "minThroughputImprovementRatio": 0.01,
+        "mode": "auto",
+        "queuePressure": {
+          "maxQueueWaitP95Ms": 150,
+          "maxRejectionRate": 0.01,
+          "maxTimeoutRate": 0.005,
+          "maxUtilization": 0.7
+        },
+        "targetP95Ms": 200,
+        "unhealthyEvaluations": 2
+      },
+      "concurrency": {
+        "latencySampleSize": 512,
+        "limit": 8,
+        "maxQueueSize": 64,
+        "maxQueueWaitMs": 1000
+      }
+    },
+    "conservative": {
+      "adaptive": {
+        "decisionHistorySize": 50,
+        "decreaseFactor": 0.8,
+        "errorDecreaseFactor": 0.6,
+        "evaluationIntervalMs": 5000,
+        "ewmaAlpha": 0.2,
+        "healthyEvaluations": 3,
+        "increaseStep": 1,
+        "maxErrorRate": 0.02,
+        "maxLimit": 8,
+        "minLimit": 2,
+        "minThroughputImprovementRatio": 0.01,
+        "mode": "auto",
+        "queuePressure": {
+          "maxQueueWaitP95Ms": 125,
+          "maxRejectionRate": 0.01,
+          "maxTimeoutRate": 0.005,
+          "maxUtilization": 0.5
+        },
+        "targetP95Ms": 250,
+        "unhealthyEvaluations": 2
+      },
+      "concurrency": {
+        "latencySampleSize": 256,
+        "limit": 4,
+        "maxQueueSize": 16,
+        "maxQueueWaitMs": 500
+      }
+    },
+    "latencySensitive": {
+      "adaptive": {
+        "decisionHistorySize": 50,
+        "decreaseFactor": 0.7,
+        "errorDecreaseFactor": 0.5,
+        "evaluationIntervalMs": 2000,
+        "ewmaAlpha": 0.2,
+        "healthyEvaluations": 3,
+        "increaseStep": 1,
+        "maxErrorRate": 0.01,
+        "maxLimit": 16,
+        "minLimit": 2,
+        "minThroughputImprovementRatio": 0.01,
+        "mode": "auto",
+        "queuePressure": {
+          "maxQueueWaitP95Ms": 50,
+          "maxRejectionRate": 0.005,
+          "maxTimeoutRate": 0.002,
+          "maxUtilization": 0.4
+        },
+        "targetP95Ms": 100,
+        "unhealthyEvaluations": 1
+      },
+      "concurrency": {
+        "latencySampleSize": 512,
+        "limit": 4,
+        "maxQueueSize": 8,
+        "maxQueueWaitMs": 150
+      }
+    },
+    "throughputOriented": {
+      "adaptive": {
+        "decisionHistorySize": 50,
+        "decreaseFactor": 0.85,
+        "errorDecreaseFactor": 0.6,
+        "evaluationIntervalMs": 5000,
+        "ewmaAlpha": 0.2,
+        "healthyEvaluations": 2,
+        "increaseStep": 4,
+        "maxErrorRate": 0.03,
+        "maxLimit": 64,
+        "minLimit": 8,
+        "minThroughputImprovementRatio": 0.01,
+        "mode": "auto",
+        "queuePressure": {
+          "maxQueueWaitP95Ms": 225,
+          "maxRejectionRate": 0.02,
+          "maxTimeoutRate": 0.01,
+          "maxUtilization": 0.8
+        },
+        "targetP95Ms": 300,
+        "unhealthyEvaluations": 2
+      },
+      "concurrency": {
+        "latencySampleSize": 1024,
+        "limit": 16,
+        "maxQueueSize": 128,
+        "maxQueueWaitMs": 2000
+      }
+    }
+  },
+  "runtimeExports": {
+    "lazpho": [
+      "BulkheadQueueFullError",
+      "CircuitBreakerOpenError",
+      "ControllerAbortError",
+      "ControllerLifecycleError",
+      "ControllerLimitError",
+      "ControllerTimeoutError",
+      "DuplicateControllerNameError",
+      "QueueAbortedError",
+      "QueueFullError",
+      "QueueWaitTimeoutError",
+      "UnknownBulkheadError",
+      "classifyLazphoError",
+      "createFactory",
+      "createProtectedFunction",
+      "isLazphoError"
+    ],
+    "lazpho/application": [
+      "createLazphoApplication",
+      "startLazphoDashboard"
+    ],
+    "lazpho/config": [
+      "createLazphoPreset",
+      "getLazphoPresetInfo",
+      "inspectLazphoConfig",
+      "listLazphoPresets",
+      "resolveLazphoConfig",
+      "validateLazphoConfig"
+    ],
+    "lazpho/express": [
+      "createLazphoExpress",
+      "createLazphoExpressErrorHandler",
+      "getLazphoExpress",
+      "mapLazphoErrorToHttp",
+      "shutdownLazphoExpress"
+    ],
+    "lazpho/fastify": [
+      "createLazphoFastifyErrorHandler",
+      "getLazphoFastify",
+      "lazphoFastifyPlugin",
+      "mapLazphoErrorToHttp"
+    ],
+    "lazpho/fetch": [
+      "createProtectedFetch"
+    ],
+    "lazpho/load-lab": [
+      "startLazphoLoadLab"
+    ],
+    "lazpho/nestjs": [
+      "LAZPHO_CONTROLLER",
+      "LazphoModule",
+      "createLazphoNestInterceptor",
+      "getLazphoNest",
+      "mapLazphoErrorToHttp"
+    ],
+    "lazpho/node-http": [
+      "createRequestAbortSignal",
+      "instrumentNodeHttp"
+    ],
+    "lazpho/observability": [
+      "createMetricsCollector",
+      "createMetricsExporter"
+    ],
+    "lazpho/opentelemetry": [
+      "LAZPHO_OTEL_METRIC_NAMES",
+      "breakerValue",
+      "createLazphoOpenTelemetry",
+      "lifecycleValue"
+    ]
+  },
+  "warningCodes": [
+    "BULKHEAD_EXCEEDS_GLOBAL_LIMIT",
+    "FIXED_EFFECTIVE_ADAPTIVE_LIMIT",
+    "INITIAL_LIMIT_NEAR_MAXIMUM",
+    "LARGE_BULKHEAD_QUEUE_RATIO",
+    "LARGE_QUEUE_TO_CONCURRENCY_RATIO",
+    "VERY_LOW_LATENCY_TARGET"
+  ]
+}

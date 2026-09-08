@@ -1,0 +1,10 @@
+services:
+  mongo:
+    image: mongo:8
+    ports:
+      - "27018:27017"
+    volumes:
+      - feedback-data:/data/db
+
+volumes:
+  feedback-data:

@@ -1,0 +1,170 @@
+{
+  "name": "lazpho",
+  "version": "0.1.0",
+  "description": "Adaptive concurrency, bounded backpressure, and dependency resilience for Node.js.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diveshshubham/lazpho.git"
+  },
+  "homepage": "https://github.com/diveshshubham/lazpho#readme",
+  "bugs": {
+    "url": "https://github.com/diveshshubham/lazpho/issues"
+  },
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "concurrency",
+    "backpressure",
+    "observability",
+    "adaptive-concurrency",
+    "circuit-breaker",
+    "bulkhead",
+    "retry",
+    "resilience"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./node-http": {
+      "types": "./dist/adapters/node-http.d.ts",
+      "import": "./dist/adapters/node-http.js"
+    },
+    "./fetch": {
+      "types": "./dist/adapters/fetch.d.ts",
+      "import": "./dist/adapters/fetch.js"
+    },
+    "./observability": {
+      "types": "./dist/observability.d.ts",
+      "import": "./dist/observability.js"
+    },
+    "./opentelemetry": {
+      "types": "./dist/adapters/opentelemetry.d.ts",
+      "import": "./dist/adapters/opentelemetry.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js"
+    },
+    "./application": {
+      "types": "./dist/application.d.ts",
+      "import": "./dist/application.js"
+    },
+    "./load-lab": {
+      "types": "./dist/load-lab.d.ts",
+      "import": "./dist/load-lab.js"
+    },
+    "./express": {
+      "types": "./dist/adapters/express.d.ts",
+      "import": "./dist/adapters/express.js"
+    },
+    "./fastify": {
+      "types": "./dist/adapters/fastify.d.ts",
+      "import": "./dist/adapters/fastify.js"
+    },
+    "./nestjs": {
+      "types": "./dist/adapters/nestjs.d.ts",
+      "import": "./dist/adapters/nestjs.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:package": "npm run clean && tsc -p tsconfig.package.json",
+    "package:build": "npm run build:package",
+    "api:check": "npm run build:package && node scripts/api-contract.mjs check",
+    "api:update": "npm run build:package && node scripts/api-contract.mjs update",
+    "compat": "npm run api:check && npm run compat:consumer",
+    "compat:consumer": "node scripts/compat.mjs",
+    "package:verify": "node scripts/package-verify.mjs --output artifacts",
+    "release:version:check": "node scripts/release-version.mjs validate",
+    "release:version:check:local": "node scripts/release-version.mjs validate-local",
+    "release:check": "npm run release:version:check:local && npm test && npm run api:check && npm run package:verify",
+    "release:dry-run": "npm run release:check && npm run stress && npm run soak",
+    "readiness:audit": "node scripts/readiness.mjs",
+    "release:readiness": "npm run release:dry-run && npm run readiness:audit",
+    "prepack": "npm run build:package",
+    "prepublishOnly": "npm run release:check",
+    "test": "npm run build && node --test dist/test/**/*.test.js scripts/*.test.mjs",
+    "benchmark": "npm run build && node dist/benchmark/http-overhead.js && node dist/benchmark/concurrency-overhead.js && node dist/benchmark/adaptive-decision.js",
+    "benchmark:concurrency": "npm run build && node dist/benchmark/concurrency-overhead.js",
+    "benchmark:observability": "npm run build && node dist/benchmark/observability-overhead.js",
+    "benchmark:adaptive": "npm run build && node dist/benchmark/adaptive-decision.js",
+    "benchmark:closed-loop": "npm run build && node dist/benchmark/closed-loop-workload.js",
+    "benchmark:backpressure": "npm run build && node dist/benchmark/backpressure-overload.js",
+    "benchmark:adaptive-backpressure": "npm run build && node dist/benchmark/adaptive-backpressure.js",
+    "benchmark:adaptive-backpressure-real": "npm run build && node dist/benchmark/adaptive-backpressure-real.js",
+    "benchmark:adaptive-backpressure-saturation": "npm run build && node dist/benchmark/adaptive-backpressure-saturation.js",
+    "bench:adaptive": "npm run benchmark:adaptive-backpressure",
+    "bench:saturation": "npm run benchmark:adaptive-backpressure-saturation",
+    "bench:phase8": "npm run build && node dist/benchmark/phase8-real-application.js",
+    "lab:phase8b": "npm run build && node dist/example/bottleneck-lab.js",
+    "lab:phase8b:smoke": "npm run build && node dist/example/bottleneck-lab.js --smoke",
+    "stress": "npm run build && node dist/stress/adversarial.js",
+    "soak": "npm run build && node dist/soak/runner.js",
+    "soak:long": "npm run build && node --expose-gc dist/soak/runner.js --long",
+    "example": "npm run build && node dist/example/server.js",
+    "example:integration": "npm run build && node dist/example/production-integration.js",
+    "demo:adaptive": "npm run build && node dist/example/adaptive-demo.js",
+    "load:adaptive": "autocannon -c 100 -d 30 http://localhost:3000/work",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\""
+  },
+  "devDependencies": {
+    "@nestjs/common": "^10.4.22",
+    "@nestjs/core": "^10.4.22",
+    "@nestjs/testing": "^10.4.22",
+    "@types/express": "^4.17.25",
+    "@types/node": "^22.10.2",
+    "autocannon": "^8.0.0",
+    "express": "^4.22.2",
+    "fastify": "^4.29.1",
+    "fastify-plugin": "^5.1.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "semver": "7.8.5",
+    "typescript": "^5.7.2",
+    "typescript-minimum": "npm:typescript@5.7.2",
+    "yaml": "2.9.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "@nestjs/common": ">=10 <12",
+    "express": ">=4.18 <6",
+    "fastify": ">=4 <6",
+    "fastify-plugin": ">=4 <6",
+    "rxjs": ">=7 <8"
+  },
+  "peerDependenciesMeta": {
+    "@nestjs/common": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "fastify-plugin": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    }
+  }
+}

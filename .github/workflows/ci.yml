@@ -1,0 +1,188 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: Node ${{ matrix.node }} core test/build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20, 22, 24]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npm run package:build
+
+  api-contract:
+    name: API contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run api:check
+      - name: Ensure contract generation is clean
+        run: git diff --exit-code
+
+  typescript-compat:
+    name: TypeScript ${{ matrix.compiler }} packed consumer
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [minimum, current]
+    env:
+      COMPAT_TYPESCRIPT_MODE: ${{ matrix.compiler }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run compat
+
+  framework-compat:
+    name: Framework ${{ matrix.profile }} packed consumer
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - profile: minimum
+            node: 18
+            express: 4.18.2
+            express_types: 4.17.17
+            fastify: 4.0.0
+            fastify_plugin: 4.0.0
+            nestjs: 10.0.0
+            rxjs: 7.8.0
+            reflect_metadata: 0.1.14
+            node_types: 18.19.0
+          - profile: current
+            node: 24
+            express: 5.2.1
+            express_types: 5.0.6
+            fastify: 5.12.3
+            fastify_plugin: 5.1.0
+            nestjs: 11.2.3
+            rxjs: 7.8.2
+            reflect_metadata: 0.2.2
+            node_types: 24.13.3
+    env:
+      COMPAT_TYPESCRIPT_MODE: none
+      COMPAT_EXPRESS_VERSION: ${{ matrix.express }}
+      COMPAT_EXPRESS_TYPES_VERSION: ${{ matrix.express_types }}
+      COMPAT_FASTIFY_VERSION: ${{ matrix.fastify }}
+      COMPAT_FASTIFY_PLUGIN_VERSION: ${{ matrix.fastify_plugin }}
+      COMPAT_NESTJS_VERSION: ${{ matrix.nestjs }}
+      COMPAT_RXJS_VERSION: ${{ matrix.rxjs }}
+      COMPAT_REFLECT_METADATA_VERSION: ${{ matrix.reflect_metadata }}
+      COMPAT_NODE_TYPES_VERSION: ${{ matrix.node_types }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run compat
+
+  packed-consumer:
+    name: Default packed consumer
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run compat
+
+  reliability:
+    name: ${{ matrix.gate }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      STRESS_SEED: 184732
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - gate: Stress
+            command: stress
+          - gate: Short soak
+            command: soak
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run ${{ matrix.command }}
+
+  package-verify:
+    name: Package verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run package:verify
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pr-package-verification
+          path: |
+            artifacts/package-manifest.json
+            artifacts/*.sha256
+          retention-days: 3
+
+  benchmarks:
+    name: Informational functional benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run bench:adaptive
+      - run: npm run bench:saturation
+      - run: npm run lab:phase8b:smoke

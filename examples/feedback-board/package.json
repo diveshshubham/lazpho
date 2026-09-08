@@ -1,0 +1,18 @@
+{
+  "name": "lazpho-feedback-board-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "compare": "node scripts/compare.mjs",
+    "test:matrix": "node scripts/test-matrix.mjs",
+    "check": "node --check server.js && node --check public/app.js && node --check scripts/compare.mjs && node --check scripts/test-matrix.mjs"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "lazpho": "file:../..",
+    "mongodb": "^6.19.0"
+  }
+}
