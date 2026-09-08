@@ -39,9 +39,12 @@ await check('documented private vulnerability-reporting channel', async () => {
   const security = await readFile(resolve(root, 'SECURITY.md'), 'utf8');
   assert.match(security, /github\.com\/diveshshubham\/lazpho\/security\/advisories\/new/);
 });
+await check('documented canonical branch protection', async () => {
+  const readiness = await readFile(resolve(root, 'docs/1.0-readiness.md'), 'utf8');
+  assert.match(readiness, /\[x\] Branch protection is enabled on `master`/);
+});
 
 console.log('BLOCKED  npm ownership and trusted-publisher association are not verified');
-console.log('BLOCKED  canonical repository branch protection is not verified');
 console.log('BLOCKED  maintainer approval of package identity and intended 1.0 public contract');
 console.log('BLOCKED  real prerelease/RC install, provenance, and recovery validation');
 console.log('\nStatus: NOT_READY_FOR_1_0');
