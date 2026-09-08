@@ -115,7 +115,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_DIST_TAG: ${{ needs.version.outputs.npm_dist_tag }}
-        run: npm publish artifacts/*.tgz --provenance --tag "$NPM_DIST_TAG"
+        run: npm publish artifacts/*.tgz --provenance --access public --tag "$NPM_DIST_TAG"
 
   github-release:
     name: Create GitHub Release after npm publish

@@ -4,6 +4,17 @@ Notable changes are recorded here using a concise Keep-a-Changelog-inspired stru
 
 ## Unreleased
 
+## 0.1.0-rc.1 - 2026-09-08
+
+### Added
+
+- Fixed and adaptive concurrency controllers with bounded, partition-aware backpressure.
+- Cooperative cancellation, execution and queue-wait timeouts, bounded retries, circuit breaker, and bulkheads.
+- Native fetch, Node HTTP, Express, Fastify, and NestJS integrations.
+- Pull/push metrics, structural OpenTelemetry integration, stable metric names, and bounded attributes.
+- Deterministic presets, validation, inspection, and warning codes.
+- Runtime/type API contracts, packed consumers, Node/TypeScript/framework CI matrices, stress/soak gates, and exact-artifact release automation.
+
 ### Changed
 
 - Selected the proposed npm identity `lazpho`, replacing pre-release repository specifiers named `factory-node` without changing runtime APIs.
@@ -23,16 +34,5 @@ Notable changes are recorded here using a concise Keep-a-Changelog-inspired stru
 ### Compatibility
 
 - Node 18/20/22/24, TypeScript 5.7.2/current 5.x, and documented Express/Fastify/NestJS boundaries remain automated compatibility targets.
-
-## 0.1.0 - Pending first release
-
-### Added
-
-- Fixed and adaptive concurrency controllers with bounded, partition-aware backpressure.
-- Cooperative cancellation, execution and queue-wait timeouts, bounded retries, circuit breaker, and bulkheads.
-- Native fetch, Node HTTP, Express, Fastify, and NestJS integrations.
-- Pull/push metrics, structural OpenTelemetry integration, stable metric names, and bounded attributes.
-- Deterministic presets, validation, inspection, and warning codes.
-- Runtime/type API contracts, packed consumers, Node/TypeScript/framework CI matrices, stress/soak gates, and exact-artifact release automation.
 
 This version has not been declared or published as Lazpho 1.0.

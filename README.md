@@ -16,7 +16,7 @@ The proposed unscoped package name is `lazpho`. The registry currently has no pa
 npm install lazpho
 ```
 
-Until then, validate a local release artifact with `npm run package:verify`, then install the generated `artifacts/lazpho-0.1.0.tgz` in a test consumer.
+Until then, validate a local release artifact with `npm run package:verify`, then install the generated versioned tarball from `artifacts/` in a test consumer.
 
 Requires Node.js 18 or later. `lazpho` is ESM-only and has no runtime dependencies.
 
@@ -751,7 +751,7 @@ npm run soak:long
 
 GitHub Actions runs core test/build/package validation on Node 18, 20, 22, and 24. Separate jobs gate the public API contract, TypeScript 5.7.2/current declarations, minimum/current framework boundaries, packed consumers, stress, short soak, package contents, and functional benchmarks. Node 18 and 20 remain compatibility targets, not recommendations for upstream-supported deployments. The long resource soak runs weekly and can also be dispatched manually.
 
-Recommended required branch checks are the four `Node … core test/build` jobs, `API contract`, `Default packed consumer`, both framework and TypeScript compatibility jobs, `Stress`, `Short soak`, and `Package verify`. Branch protection remains repository-owner configuration.
+The protected `master` branch requires the four `Node … core test/build` jobs plus `API contract`, `Package verify`, `Stress`, and `Short soak`. Pull requests require review, stale approvals are dismissed, conversations must be resolved, and force pushes and deletion are disabled.
 
 Release preparation is intentionally maintainer-controlled:
 
@@ -761,7 +761,7 @@ Release preparation is intentionally maintainer-controlled:
 4. A tag-triggered workflow repeats every release gate, validates one exact tarball, uploads it, checks that the npm version is unused, and publishes that same tarball. Stable versions use `latest`, `beta` prereleases use `beta`, and other prereleases use `next`.
 5. The GitHub Release is created only after npm publication. If that final step fails, recover by creating the GitHub Release manually; never republish or unpublish the immutable npm version.
 
-Publishing requires ownership of the unscoped `lazpho` npm name and either npm trusted-publisher configuration for this GitHub workflow or an `NPM_TOKEN` repository secret. Trusted publishing and provenance additionally depend on npm-side association with the eventual canonical GitHub repository. No repository URL, npm ownership, protected environment, branch protection, or credential is assumed by this repository. The publish job has scoped `id-token: write`; only the post-publish GitHub Release job receives `contents: write`.
+The first publication requires the authenticated npm maintainer to bootstrap ownership of the unscoped `lazpho` name. The tag workflow accepts either npm trusted publishing for `diveshshubham/lazpho` and `release.yml`, or an explicitly approved temporary `NPM_TOKEN` repository secret. It publishes with public access and provenance from GitHub-hosted infrastructure. After bootstrap, configure trusted publishing and remove the temporary write token. The publish job has scoped `id-token: write`; only the post-publish GitHub Release job receives `contents: write`.
 
 `npm run release:check` performs the release-critical local tests without publishing. `npm run release:dry-run` adds deterministic stress and short soak gates. Neither command changes the package version or API snapshots.
 
