@@ -1,11 +1,11 @@
-# Phase 8 real-application validation
+# Real-application adaptive benchmark
 
-The Phase 8 benchmark answers whether the existing adaptive controller visibly changes a linked limiter under sustained real Node.js traffic. It is a repository benchmark, not a universal performance claim or a release pass/fail threshold.
+This benchmark answers whether the adaptive controller visibly changes a linked limiter under sustained real Node.js traffic. It is a repository benchmark, not a universal performance claim or a release pass/fail threshold.
 
 Run:
 
 ```bash
-npm run bench:phase8
+npm run bench:application
 ```
 
 The benchmark starts a local Node HTTP dependency and runs equivalent healthy, saturation, slowdown, and recovery periods through three strategies:

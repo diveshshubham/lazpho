@@ -1,6 +1,6 @@
-# Stage 3B MongoDB fault and recovery validation
+# MongoDB transport-fault and recovery validation
 
-Stage 3B evaluates how Signalboard behaves when its MongoDB transport becomes slow, disappears, and returns. A repository-owned TCP proxy injects latency and cuts sockets without stopping or modifying the upstream database. Both direct and Lazpho modes receive the same request count, concurrency, fault sequence, and MongoDB server.
+This validation evaluates how Signalboard behaves when its MongoDB transport becomes slow, disappears, and returns. A repository-owned TCP proxy injects latency and cuts sockets without stopping or modifying the upstream database. Both direct and Lazpho modes receive the same request count, concurrency, fault sequence, and MongoDB server.
 
 ## Run it
 
@@ -18,7 +18,7 @@ The runner requires healthy success, visible outage failures, successful post-ou
 
 ## Evidence recorded on 2026-09-08
 
-The environment matches the [Stage 3 validation record](stage3-validation.md): Windows x64, Node 24.11.1, npm 11.6.2, MongoDB 8.3.8, AMD Ryzen 7 5800HS, 16 logical CPUs, and 15.4 GiB memory.
+The environment matches the [Signalboard validation record](signalboard-validation.md): Windows x64, Node 24.11.1, npm 11.6.2, MongoDB 8.3.8, AMD Ryzen 7 5800HS, 16 logical CPUs, and 15.4 GiB memory.
 
 | Mode | Phase | Attempted | Successful | Failed | 503 | 504 | 500 | P95 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -40,7 +40,7 @@ The direct mode's successful mixed-soak requests do not mean the outage was free
 ## Interpretation limits
 
 - This validates bounded application behavior and recovery under TCP latency and connection loss; it is not a throughput benchmark.
-- A socket cut is only failover-style transport pressure. It does not reproduce MongoDB elections, replication lag, rollback, write concern, retryable-write semantics, or consistency behavior. See the follow-on [Stage 3C replica-set validation](stage3c-replica-set-validation.md) for bounded election and majority-durability evidence.
+- A socket cut is only failover-style transport pressure. It does not reproduce MongoDB elections, replication lag, rollback, write concern, retryable-write semantics, or consistency behavior. See the [replica-set validation](mongodb-replica-set-validation.md) for bounded election and majority-durability evidence.
 - Results depend on the local OS, driver, MongoDB version, payload, connection pool, and timing.
 - A protective rejection or timeout is not a successful business operation, but it can be preferable to unbounded dependency work and uncontrolled tail latency.
 - Production-like replica-set and network-emulation testing remains required before making database failover claims.

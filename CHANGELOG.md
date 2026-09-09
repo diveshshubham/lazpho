@@ -1,15 +1,18 @@
 # Changelog
 
-Notable changes are recorded here using a concise Keep-a-Changelog-inspired structure. Dates indicate releases, not development phases.
+Notable changes are recorded here using a concise Keep-a-Changelog-inspired structure.
 
 ## Unreleased
+
+## 0.1.0-rc.2 - 2026-09-09
 
 ### Added
 
 - Added a Signalboard Load Lab black-box validator covering every registered API in once, latency, and bounded-load modes, including report, authorization, controller-limit, and managed-fixture checks.
-- Added a reproducible Stage 3 validation record with local MongoDB A/B evidence, resource-soak results, interpretation boundaries, and remaining distributed-test work.
-- Added a repository-owned MongoDB TCP fault proxy and Stage 3B runner for latency spikes, transport loss, breaker behavior, recovery, and mixed-fault application soaking, with JSON/HTML reports and a bounded Linux CI gate.
-- Added a disposable three-member MongoDB 8 replica-set lab and Stage 3C runner covering real primary elections, majority-visible sentinels, acknowledged-write preservation, post-election recovery, Lazpho bounds, JSON/HTML reports, and CI evidence.
+- Added a reproducible Signalboard validation record with local MongoDB A/B evidence, resource-soak results, interpretation boundaries, and remaining distributed-test work.
+- Added a repository-owned MongoDB TCP fault proxy and fault-validation runner for latency spikes, transport loss, breaker behavior, recovery, and mixed-fault application soaking, with JSON/HTML reports and a bounded Linux CI gate.
+- Added a disposable three-member MongoDB 8 replica-set lab covering real primary elections, majority-visible sentinels, acknowledged-write preservation, post-election recovery, Lazpho bounds, JSON/HTML reports, and CI evidence.
+- Added task-oriented getting-started, existing-application adoption, testing, and Signalboard comparison guides; renamed milestone-based documents around their user-facing purpose.
 
 ### Fixed
 
@@ -30,9 +33,9 @@ Notable changes are recorded here using a concise Keep-a-Changelog-inspired stru
 
 - Selected the proposed npm identity `lazpho`, replacing pre-release repository specifiers named `factory-node` without changing runtime APIs.
 - Completed consumer documentation, API/operations references, SemVer and migration policy, and the auditable 1.0 readiness gate.
-- Clarified that closed-loop evaluation scheduling is application-owned and added a sustained local-HTTP Phase 8 comparison for unlimited, fixed, and adaptive strategies.
-- Added the repository-only Phase 8B full-path bottleneck lab, loopback dashboard, scenario API, and automated functional smoke gate.
-- Completed Phase 8 with the additive `lazpho/application` registry and loopback dashboard, explicit safe-scenario execution, route-to-capacity mapping, application-owned adaptive evaluation, and optional framework-wide inbound metrics.
+- Clarified that closed-loop evaluation scheduling is application-owned and added a sustained local-HTTP comparison for unlimited, fixed, and adaptive strategies.
+- Added the repository-only full-path bottleneck lab, loopback dashboard, scenario API, and automated functional smoke gate.
+- Added the `lazpho/application` registry and loopback dashboard, explicit safe-scenario execution, route-to-capacity mapping, application-owned adaptive evaluation, and optional framework-wide inbound metrics.
 - Added the opt-in `lazpho/load-lab` MVP with explicit safe endpoint registration, per-endpoint request/latency/load actions, bounded local generation, Lazpho controller evidence, and HTML/JSON reports.
 - Documented Lazpho's vision, appropriate and inappropriate uses, integration guidance, limitations, and responsible performance interpretation.
 - Added Load Lab managed fixture callbacks for safe mutating-endpoint tests and upgraded Signalboard's isolated direct-versus-Lazpho workflow to produce combined HTML/JSON evidence reports.

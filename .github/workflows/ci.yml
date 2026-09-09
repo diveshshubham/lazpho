@@ -279,4 +279,4 @@ jobs:
       - run: npm ci
       - run: npm run bench:adaptive
       - run: npm run bench:saturation
-      - run: npm run lab:phase8b:smoke
+      - run: npm run lab:bottleneck:smoke

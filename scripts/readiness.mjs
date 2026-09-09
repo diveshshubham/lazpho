@@ -7,7 +7,7 @@ import semver from 'semver';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const packageJson = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
 const api = JSON.parse(await readFile(resolve(root, 'api/public-api.json'), 'utf8'));
-const requiredDocs = ['README.md', 'LICENSE', 'CHANGELOG.md', 'SECURITY.md', 'CONTRIBUTING.md', 'docs/api.md', 'docs/operations.md', 'docs/compatibility.md', 'docs/versioning.md', 'docs/migration.md', 'docs/phase8-validation.md', 'docs/phase8b-bottleneck-lab.md', 'docs/phase8-application-integration.md', 'docs/vision-and-usage.md', 'docs/load-lab.md', 'docs/stage3-validation.md', 'docs/stage3b-fault-validation.md', 'docs/stage3c-replica-set-validation.md', 'docs/1.0-readiness.md'];
+const requiredDocs = ['README.md', 'LICENSE', 'CHANGELOG.md', 'SECURITY.md', 'CONTRIBUTING.md', 'docs/getting-started.md', 'docs/adoption-guide.md', 'docs/testing.md', 'docs/signalboard-comparison.md', 'docs/api.md', 'docs/operations.md', 'docs/compatibility.md', 'docs/versioning.md', 'docs/migration.md', 'docs/application-benchmark.md', 'docs/bottleneck-lab.md', 'docs/application-integration.md', 'docs/vision-and-usage.md', 'docs/load-lab.md', 'docs/signalboard-validation.md', 'docs/mongodb-fault-validation.md', 'docs/mongodb-replica-set-validation.md', 'docs/1.0-readiness.md'];
 
 await check('package identity and canonical SemVer', () => {
   assert.equal(packageJson.name, 'lazpho');

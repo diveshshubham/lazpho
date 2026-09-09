@@ -1,11 +1,11 @@
-# Phase 8B full-path bottleneck lab
+# Full-path bottleneck lab
 
-Phase 8B adds a repository-only application lab that observes every inbound lab route while protecting capacity-constrained dependency operations. It complements the Phase 8 outbound comparison: route telemetry explains what the caller experienced, while controller telemetry explains where admission, queueing, execution, retries, bulkheads, and breakers changed that experience.
+The repository bottleneck lab observes every inbound lab route while protecting capacity-constrained dependency operations. It complements the outbound application benchmark: route telemetry explains what the caller experienced, while controller telemetry explains where admission, queueing, execution, retries, bulkheads, and breakers changed that experience.
 
 Run the interactive dashboard:
 
 ```bash
-npm run lab:phase8b
+npm run lab:bottleneck
 ```
 
 Open `http://127.0.0.1:1912`. Set `LAZPHO_DASHBOARD_PORT` to a different valid port when 1912 is unavailable. The server binds only to loopback and installs no package-level process handlers; the example application owns its shutdown handlers.
@@ -13,7 +13,7 @@ Open `http://127.0.0.1:1912`. Set `LAZPHO_DASHBOARD_PORT` to a different valid p
 Run the automated functional check:
 
 ```bash
-npm run lab:phase8b:smoke
+npm run lab:bottleneck:smoke
 ```
 
 The smoke mode uses reduced loads, drives every lab route, asserts evidence for bounded rejection, retries, bulkhead isolation, execution timeout, request cancellation, breaker recovery, and final `active/queued = 0/0`, then closes both local servers. Assertions are behavioral rather than machine-specific latency thresholds.
@@ -57,4 +57,4 @@ The dashboard reports bounded route templates, controller activity and queues, r
 - expected report latency remains labeled as intentional slow work;
 - explicit outcome counters distinguish saturation, bulkhead rejection, queue and execution timeout, breaker-open rejection, downstream failure, and cancellation.
 
-Because route latency alone cannot identify time spent in arbitrary internal code, production-grade bottleneck attribution should correlate these metrics with tracing, database/client instrumentation, and application-specific spans. Phase 8B remains the deterministic repository proof. The reusable, opt-in registry and loopback dashboard added to `lazpho/application` are documented in [Phase 8 application integration](phase8-application-integration.md); neither performs automatic code profiling or arbitrary route execution.
+Because route latency alone cannot identify time spent in arbitrary internal code, production-grade bottleneck attribution should correlate these metrics with tracing, database/client instrumentation, and application-specific spans. This lab remains a deterministic repository proof. The reusable, opt-in registry and loopback dashboard are documented in [application integration](application-integration.md); neither performs automatic code profiling or arbitrary route execution.

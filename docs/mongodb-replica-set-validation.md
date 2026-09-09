@@ -1,6 +1,6 @@
-# Stage 3C MongoDB replica-set validation
+# MongoDB replica-set election validation
 
-Stage 3C evaluates Signalboard and Lazpho during a real MongoDB primary election. A disposable Docker Compose lab starts three MongoDB 8 voting data-bearing members, runs identical direct and Lazpho application modes, issues mixed HTTP reads and majority writes, steps down the current primary for 30 seconds, and requires a different member to become primary.
+This validation evaluates Signalboard and Lazpho during a real MongoDB primary election. A disposable Docker Compose lab starts three MongoDB 8 voting data-bearing members, runs identical direct and Lazpho application modes, issues mixed HTTP reads and majority writes, steps down the current primary for 30 seconds, and requires a different member to become primary.
 
 ## Acceptance criteria
 
@@ -24,7 +24,7 @@ docker compose -f docker-compose.replica-set.yml up --exit-code-from test test
 docker compose -f docker-compose.replica-set.yml down --volumes
 ```
 
-The Compose project has the fixed name `lazpho-stage3c`, uses temporary MongoDB filesystems and anonymous dependency volumes, and exposes no database port to the host. The second command removes only those disposable resources. Reports remain in the repository's ignored `examples/feedback-board/load-reports/` directory.
+The Compose project has the fixed name `lazpho-replica-set`, uses temporary MongoDB filesystems and anonymous dependency volumes, and exposes no database port to the host. The second command removes only those disposable resources. Reports remain in the repository's ignored `examples/feedback-board/load-reports/` directory.
 
 Defaults use 24 workers, a 12-second workload, and a maximum of 3,000 HTTP requests per application mode. `REPLICA_CONCURRENCY`, `REPLICA_DURATION_SECONDS`, and `REPLICA_MAX_REQUESTS` accept bounded overrides. CI uses 12 workers, six seconds, and 800 requests.
 
