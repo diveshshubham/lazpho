@@ -1,6 +1,6 @@
 {
   "name": "lazpho",
-  "version": "0.1.0-rc.1",
+  "version": "0.1.0-rc.2",
   "description": "Adaptive concurrency, bounded backpressure, and dependency resilience for Node.js.",
   "license": "MIT",
   "repository": {
@@ -114,9 +114,9 @@
     "benchmark:adaptive-backpressure-saturation": "npm run build && node dist/benchmark/adaptive-backpressure-saturation.js",
     "bench:adaptive": "npm run benchmark:adaptive-backpressure",
     "bench:saturation": "npm run benchmark:adaptive-backpressure-saturation",
-    "bench:phase8": "npm run build && node dist/benchmark/phase8-real-application.js",
-    "lab:phase8b": "npm run build && node dist/example/bottleneck-lab.js",
-    "lab:phase8b:smoke": "npm run build && node dist/example/bottleneck-lab.js --smoke",
+    "bench:application": "npm run build && node dist/benchmark/application-workload.js",
+    "lab:bottleneck": "npm run build && node dist/example/bottleneck-lab.js",
+    "lab:bottleneck:smoke": "npm run build && node dist/example/bottleneck-lab.js --smoke",
     "stress": "npm run build && node dist/stress/adversarial.js",
     "soak": "npm run build && node dist/soak/runner.js",
     "soak:long": "npm run build && node --expose-gc dist/soak/runner.js --long",

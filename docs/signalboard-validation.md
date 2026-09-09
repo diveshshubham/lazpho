@@ -1,6 +1,6 @@
-# Stage 3 application and load validation
+# Signalboard application and load validation
 
-Stage 3 tests whether the published release candidate protects a real Node/MongoDB application, exposes understandable evidence, and remains honest about the load generator's limits. It does not attempt to turn a laptop into a distributed million-RPS benchmark.
+This validation tests whether the published release candidate protects a real Node/MongoDB application, exposes understandable evidence, and remains honest about the load generator's limits. It does not attempt to turn a laptop into a distributed million-RPS benchmark.
 
 ## Reproduce the validation
 
@@ -68,6 +68,6 @@ The Load Lab black-box validation completed 15 runs: five APIs across once, late
 - multi-host behavior, network faults, MongoDB failover, replica-set elections, or geographically distributed traffic;
 - that Lazpho should wrap CPU-bound work, already-bounded cheap operations, or every route indiscriminately.
 
-## Remaining Stage 3 work
+## Remaining production validation
 
-Every pull request now repeats a bounded Signalboard direct-versus-Lazpho comparison, all 15 Load Lab endpoint/action combinations, a transport-fault smoke, and a real three-member replica-set election smoke against MongoDB 8 on Linux, retaining generated reports for 14 days. [Stage 3B fault validation](stage3b-fault-validation.md) records local latency, disconnect, recovery, and mixed-soak evidence. [Stage 3C replica-set validation](stage3c-replica-set-validation.md) records primary changes, majority-visible sentinels, acknowledged-write preservation, and application recovery. Before a broader production claim, repeat representative scenarios across hosts and add partition, replication-lag, rollback, and majority-loss experiments. Use coordinated external generators if a high-rate capacity claim is needed, and publish the generator topology, hardware, safety limits, achieved rate, and error distribution with any result.
+Every pull request now repeats a bounded Signalboard direct-versus-Lazpho comparison, all 15 Load Lab endpoint/action combinations, a transport-fault smoke, and a real three-member replica-set election smoke against MongoDB 8 on Linux, retaining generated reports for 14 days. [MongoDB fault validation](mongodb-fault-validation.md) records local latency, disconnect, recovery, and mixed-soak evidence. [MongoDB replica-set validation](mongodb-replica-set-validation.md) records primary changes, majority-visible sentinels, acknowledged-write preservation, and application recovery. Before a broader production claim, repeat representative scenarios across hosts and add partition, replication-lag, rollback, and majority-loss experiments. Use coordinated external generators if a high-rate capacity claim is needed, and publish the generator topology, hardware, safety limits, achieved rate, and error distribution with any result.

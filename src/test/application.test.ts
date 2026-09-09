@@ -63,7 +63,7 @@ test('loopback dashboard exposes only registered scenarios with bounded run, can
   let releaseGate: () => void = () => undefined;
   const gate = new Promise<void>((resolve) => { releaseGate = resolve; });
   const errors: string[] = [];
-  const apiToken = 'phase8-test-token';
+  const apiToken = 'application-test-token';
   const dashboard = await startLazphoDashboard({
     application,
     port: 0,

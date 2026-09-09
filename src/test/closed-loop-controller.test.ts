@@ -118,7 +118,7 @@ test('runtime decrease does not cancel active work', async () => {
   await Promise.all(operations);
 });
 
-test('derives aggregate observations from Phase 2A metrics', async () => {
+test('derives aggregate observations from controller metrics', async () => {
   const { controller, adaptive } = setup('auto', 5);
   await Promise.all(Array.from({ length: 10 }, () => controller.run(async () => undefined)));
   const decision = adaptive.evaluateFromMetrics(1);

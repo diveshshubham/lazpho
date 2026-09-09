@@ -1,4 +1,4 @@
-name: lazpho-stage3c
+name: lazpho-replica-set
 
 services:
   mongo1:

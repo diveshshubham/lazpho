@@ -2,7 +2,7 @@
 
 ## Compatibility matrix
 
-| Surface | Compatibility promise | Local Phase 7A verification |
+| Surface | Compatibility promise | Local verification |
 | --- | --- | --- |
 | Node core runtime | Node 18, 20, 22, and 24 | Node 24.11.1; `npm run compat` is version-independent for the four-major matrix |
 | Actively maintained Node | Node 22 Maintenance LTS and Node 24 Active LTS as of September 2026 | Node 24.11.1 |
@@ -77,9 +77,9 @@ Normal tests never update API contracts.
 - positive and negative public TypeScript usage under TypeScript 5.7.2 and the current compiler;
 - absence of repository `src`, tests, compatibility fixtures, and path aliases from the consumer package.
 
-Framework boundary versions can be supplied through the `COMPAT_*_VERSION` variables used by `scripts/compat.mjs`, allowing the same command to become a Phase 7B CI matrix without changing source or lockfiles.
+Framework boundary versions can be supplied through the `COMPAT_*_VERSION` variables used by `scripts/compat.mjs`, allowing the same command to run the CI compatibility matrix without changing source or lockfiles.
 
-The boundary results above were produced on Node 24.11.1 with Express types 4.17.17/5.0.6, Fastify Plugin 4.0.0/5.1.0, RxJS 7.8.0/7.8.2, and the appropriate Reflect Metadata peer. They establish representative framework boundaries; Phase 7B will repeat them across the applicable Node majors. New ecosystem majors outside the declared peer ranges (including NestJS 12 and Fastify Plugin 6) are not currently promised.
+The boundary results above were produced on Node 24.11.1 with Express types 4.17.17/5.0.6, Fastify Plugin 4.0.0/5.1.0, RxJS 7.8.0/7.8.2, and the appropriate Reflect Metadata peer. They establish representative framework boundaries; CI repeats them across the applicable Node majors. New ecosystem majors outside the declared peer ranges (including NestJS 12 and Fastify Plugin 6) are not currently promised.
 
 ## Public API categories
 

@@ -57,7 +57,7 @@ await Promise.all([
   writeFile(`${reportBase}.json`, `${JSON.stringify(report, null, 2)}\n`, 'utf8'),
   writeFile(`${reportBase}.html`, renderReport(report), 'utf8')
 ]);
-console.log('\nStage 3C MongoDB replica-set election validation passed.');
+console.log('\nMongoDB replica-set election validation passed.');
 console.table(modes.map(({ mode, topology, workload, consistency }) => ({
   mode,
   primaryBefore: topology.primaryBefore,
@@ -72,7 +72,7 @@ console.table(modes.map(({ mode, topology, workload, consistency }) => ({
 console.log(`Replica-set report: ${reportBase}.html`);
 
 async function exerciseMode(mode) {
-  const databaseName = `lazpho_stage3c_${runId.replaceAll('-', '_')}_${mode}`;
+  const databaseName = `lazpho_replica_${runId.replaceAll('-', '_')}_${mode}`;
   const port = mode === 'direct' ? 3131 : 3132;
   const baseUrl = `http://127.0.0.1:${port}`;
   const prefix = `${runId} ${mode}`;
@@ -316,7 +316,7 @@ async function waitForApplicationRecovery(baseUrl) {
 async function createIdea(baseUrl, title) {
   const response = await fetch(`${baseUrl}/api/ideas`, {
     method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ title, description: 'Stage 3C majority-write sentinel' }),
+    body: JSON.stringify({ title, description: 'Replica-set majority-write sentinel' }),
     signal: AbortSignal.timeout(5_000)
   });
   if (response.status !== 201) throw new Error(`Sentinel write failed with ${response.status}: ${await response.text()}`);
@@ -350,7 +350,7 @@ async function dropTemporaryDatabase(databaseName) {
 function renderReport(value) {
   const rows = value.modes.map(({ mode, topology, workload, consistency }) => `<tr><td>${mode}</td><td>${topology.primaryBefore}</td><td>${topology.primaryAfter}</td><td>${workload.attempted}</td><td>${workload.successful}</td><td>${workload.failed}</td><td>${workload.rejected503}</td><td>${workload.timedOut504}</td><td>${workload.p95Ms} ms</td><td>${consistency.missingAcknowledgedWrites}</td></tr>`).join('');
   const findings = value.findings.map((finding) => `<li>${escapeHtml(finding)}</li>`).join('');
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Signalboard Stage 3C replica-set report</title><style>body{max-width:1200px;margin:40px auto;padding:0 20px;color:#17201d;font:14px system-ui}section{border:1px solid #dce4df;border-radius:12px;padding:18px;margin:14px 0}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd}.warn{color:#8a4b00}</style></head><body><h1>Signalboard Stage 3C replica-set report</h1><p>Real three-member MongoDB primary election with majority durability checks.</p><section><h2>Results</h2><table><thead><tr><th>Mode</th><th>Primary before</th><th>Primary after</th><th>Attempted</th><th>2xx</th><th>Failed</th><th>503</th><th>504</th><th>P95</th><th>Missing acknowledged writes</th></tr></thead><tbody>${rows}</tbody></table></section><section><h2>Interpretation</h2><ul>${findings}</ul></section><p class="warn">This is bounded election evidence, not certification for every topology or partition scenario.</p><pre>${escapeHtml(JSON.stringify(value, null, 2))}</pre></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Signalboard MongoDB replica-set report</title><style>body{max-width:1200px;margin:40px auto;padding:0 20px;color:#17201d;font:14px system-ui}section{border:1px solid #dce4df;border-radius:12px;padding:18px;margin:14px 0}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd}.warn{color:#8a4b00}</style></head><body><h1>Signalboard MongoDB replica-set report</h1><p>Real three-member MongoDB primary election with majority durability checks.</p><section><h2>Results</h2><table><thead><tr><th>Mode</th><th>Primary before</th><th>Primary after</th><th>Attempted</th><th>2xx</th><th>Failed</th><th>503</th><th>504</th><th>P95</th><th>Missing acknowledged writes</th></tr></thead><tbody>${rows}</tbody></table></section><section><h2>Interpretation</h2><ul>${findings}</ul></section><p class="warn">This is bounded election evidence, not certification for every topology or partition scenario.</p><pre>${escapeHtml(JSON.stringify(value, null, 2))}</pre></body></html>`;
 }
 
 function percentile(values, ratio) {

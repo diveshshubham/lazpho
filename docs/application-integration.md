@@ -1,6 +1,6 @@
-# Phase 8 application integration
+# Application integration and local dashboard
 
-Phase 8 is complete with a reusable, opt-in application layer at `lazpho/application`. It turns the Phase 8B proof into a small integration that a real application can own without copying the repository lab.
+The optional `lazpho/application` entry point provides a reusable application-owned registry for controllers, stable route mappings, safe scenarios, adaptive evaluation, and a loopback dashboard.
 
 ## Central application registry
 

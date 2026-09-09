@@ -147,8 +147,8 @@ function measureControllerOverhead(): void {
   for (let iteration = 1; iteration <= iterations; iteration += 1) adaptive.evaluateFromMetrics(iteration);
   const adaptiveMs = performance.now() - adaptiveStartedAt;
   factory.close();
-  console.log(`Phase 2A stats: ${(directMs / iterations * 1_000).toFixed(3)} microseconds/evaluation`);
-  console.log(`Phase 2A + adaptive loop: ${(adaptiveMs / iterations * 1_000).toFixed(3)} microseconds/evaluation`);
+  console.log(`Controller stats: ${(directMs / iterations * 1_000).toFixed(3)} microseconds/evaluation`);
+  console.log(`Controller stats + adaptive loop: ${(adaptiveMs / iterations * 1_000).toFixed(3)} microseconds/evaluation`);
   console.log(`Closed-loop evaluation overhead: ${((adaptiveMs - directMs) / directMs * 100).toFixed(2)}%`);
 }
 

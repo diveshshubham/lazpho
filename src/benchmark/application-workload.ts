@@ -125,7 +125,7 @@ process.on('uncaughtExceptionMonitor', onUnhandled);
 try {
   const results: StrategyResult[] = [];
   for (const strategy of ['Unlimited', 'Fixed', 'Adaptive'] as const) results.push(await runStrategy(strategy));
-  console.log('Phase 8 configuration');
+  console.log('Application benchmark configuration');
   console.table([{ initialLimit, maxQueueSize, maxQueueWaitMs, executionTimeoutMs, ...adaptiveConfig }]);
   console.log('\nStrategy comparison');
   console.table(results.map(({ timeline: _timeline, ...result }) => ({
@@ -156,10 +156,10 @@ try {
 async function runStrategy(strategy: Strategy): Promise<StrategyResult> {
   const factory = createFactory();
   const controller = strategy === 'Unlimited' ? undefined : factory.concurrency({
-    name: `${strategy.toLowerCase()}-phase8`, limit: initialLimit, maxQueueSize, maxQueueWaitMs, latencySampleSize: 96
+    name: `${strategy.toLowerCase()}-application-benchmark`, limit: initialLimit, maxQueueSize, maxQueueWaitMs, latencySampleSize: 96
   });
   const adaptive = strategy === 'Adaptive' ? factory.adaptiveConcurrency({
-    name: 'adaptive-phase8', controller, ...adaptiveConfig
+    name: 'adaptive-application-benchmark', controller, ...adaptiveConfig
   }) : undefined;
   const outcomes: Record<Outcome, number> = { success: 0, queueRejected: 0, queueTimedOut: 0, executionTimedOut: 0, downstreamFailed: 0, cancelled: 0 };
   const latencies: number[] = [];

@@ -74,7 +74,7 @@ The validator reads the per-instance token from the loopback-only dashboard page
 
 ## Test MongoDB faults and recovery
 
-The Stage 3B runner places a bounded repository-owned TCP fault proxy between Signalboard and the configured MongoDB instance, then compares direct and Lazpho modes through healthy, latency-spike, transport-outage, recovery, and mixed-fault soak phases:
+The transport-fault runner places a bounded repository-owned TCP proxy between Signalboard and the configured MongoDB instance, then compares direct and Lazpho modes through healthy, latency-spike, transport-outage, recovery, and mixed-fault soak phases:
 
 ```bash
 npm run test:faults
@@ -86,14 +86,14 @@ Connection cuts simulate transport loss and failover-style reconnect pressure. T
 
 ## Test MongoDB replica-set elections
 
-Stage 3C runs Signalboard against a disposable three-member MongoDB 8 replica set, steps down the current primary while mixed reads and writes are active, waits for a different primary, and verifies recovery and majority durability:
+The replica-set runner starts a disposable three-member MongoDB 8 topology, steps down the current primary while mixed reads and writes are active, waits for a different primary, and verifies recovery and majority durability:
 
 ```bash
 docker compose -f docker-compose.replica-set.yml up --exit-code-from test test
 docker compose -f docker-compose.replica-set.yml down --volumes
 ```
 
-Docker Desktop (or Docker Engine with Compose v2) is the only external prerequisite. The test runs Node and MongoDB inside an isolated `lazpho-stage3c` Compose project, installs dependencies into anonymous volumes, uses temporary MongoDB storage, and writes JSON/HTML reports to `load-reports/replica-*.json` and `.html`. The cleanup command removes only that disposable project's containers, network, and anonymous volumes.
+Docker Desktop (or Docker Engine with Compose v2) is the only external prerequisite. The test runs Node and MongoDB inside an isolated `lazpho-replica-set` Compose project, installs dependencies into anonymous volumes, uses temporary MongoDB storage, and writes JSON/HTML reports to `load-reports/replica-*.json` and `.html`. The cleanup command removes only that disposable project's containers, network, and anonymous volumes.
 
 Defaults use 24 workers, a 12-second election workload, and at most 3,000 HTTP requests per mode. Override `REPLICA_CONCURRENCY`, `REPLICA_DURATION_SECONDS`, or `REPLICA_MAX_REQUESTS` for a bounded smoke or longer diagnostic. The runner requires a confirmed primary change, healthy post-election reads and writes, all acknowledged writes to remain present exactly once, pre/post sentinels to become majority-readable on all three members, zero Lazpho limit violations, and a fully drained controller.
 

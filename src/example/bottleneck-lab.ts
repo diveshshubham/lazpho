@@ -133,12 +133,12 @@ evaluator.unref();
 const sampler = setInterval(captureTimeline, 500);
 sampler.unref();
 
-console.log(`Lazpho Phase 8B dashboard: http://${host}:${port}`);
+console.log(`Lazpho Bottleneck Lab dashboard: http://${host}:${port}`);
 console.log('Run every scenario from the dashboard or POST /api/run?scenario=all');
 
 if (smoke) {
   const page = await fetch(`http://${host}:${port}/`).then((response) => response.text());
-  assert.match(page, /Lazpho Phase 8B/);
+  assert.match(page, /Lazpho Bottleneck Lab/);
   const scenarioCatalog = await fetch(`http://${host}:${port}/api/scenarios`).then((response) => response.json()) as ScenarioDefinition[];
   assert.equal(scenarioCatalog.length, scenarios.length);
   const unknown = await fetch(`http://${host}:${port}/api/run?scenario=unknown`, { method: 'POST' });
@@ -424,7 +424,7 @@ function sendHtml(response: ServerResponse, value: string): void { response.stat
 function dashboardHtml(): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lazpho Bottleneck Lab</title><style>
   :root{color-scheme:dark;--bg:#07111f;--panel:#0e1d31;--line:#213653;--text:#e8f1ff;--muted:#8da5c4;--good:#4ade80;--warn:#fbbf24;--bad:#fb7185;--accent:#38bdf8}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#123052 0,var(--bg) 35%);color:var(--text);font:14px system-ui,sans-serif}main{max-width:1500px;margin:auto;padding:24px}h1{margin:0;font-size:28px}h2{font-size:16px;margin:0 0 12px}.sub{color:var(--muted);margin:6px 0 20px}.toolbar,.grid{display:flex;gap:10px;flex-wrap:wrap}.toolbar{margin-bottom:20px}button{background:#153251;color:var(--text);border:1px solid #2d5278;border-radius:8px;padding:9px 13px;cursor:pointer}button:hover{border-color:var(--accent)}button:disabled{opacity:.45}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:16px}.card,.panel{background:rgba(14,29,49,.92);border:1px solid var(--line);border-radius:12px;padding:16px}.value{font-size:25px;font-weight:700}.muted{color:var(--muted)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}.scroll{overflow:auto}.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}progress{width:100%;accent-color:var(--accent)}canvas{width:100%;height:180px;background:#091526;border-radius:8px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:900px){.two{grid-template-columns:1fr}}</style></head><body><main>
-  <h1>Lazpho Phase 8B · Bottleneck Lab</h1><p class="sub">Full-path route, dependency, queue, adaptive, failure, cancellation, and resource diagnostics · localhost:${port}</p>
+  <h1>Lazpho Bottleneck Lab</h1><p class="sub">Full-path route, dependency, queue, adaptive, failure, cancellation, and resource diagnostics · localhost:${port}</p>
   <div class="toolbar" id="buttons"></div><div class="card" style="margin-bottom:16px"><b id="running">Idle</b><progress id="progress" value="0" max="1"></progress></div>
   <section class="grid" id="summary"></section><section class="two"><div class="panel"><h2>Controllers</h2><div class="scroll"><table><thead><tr><th>Name</th><th>Limit</th><th>Active</th><th>Queued</th><th>Queue P95</th><th>Exec P95</th><th>Rejected</th><th>Timeouts</th></tr></thead><tbody id="controllers"></tbody></table></div></div>
   <div class="panel"><h2>Adaptive decisions</h2><div class="scroll"><table><thead><tr><th>Controller</th><th>Limit</th><th>State</th><th>Changes</th><th>Last reason</th></tr></thead><tbody id="adaptive"></tbody></table></div></div></section>

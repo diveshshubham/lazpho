@@ -63,14 +63,14 @@ await Promise.all([
   writeFile(`${reportBase}.json`, `${JSON.stringify(report, null, 2)}\n`, 'utf8'),
   writeFile(`${reportBase}.html`, renderReport(report), 'utf8')
 ]);
-console.log('\nStage 3B MongoDB fault and recovery validation passed.');
+console.log('\nMongoDB fault and recovery validation passed.');
 console.table(modes.flatMap(({ mode, phases }) => Object.entries(phases).map(([phase, value]) => ({ mode, phase, ...value }))));
 console.log(`Fault report: ${reportBase}.html`);
 
 async function exerciseMode(mode) {
   proxy.recover();
   const port = mode === 'direct' ? 3121 : 3122;
-  const databaseName = `lazpho_stage3b_${runId.replaceAll('-', '_')}_${mode}`;
+  const databaseName = `lazpho_fault_${runId.replaceAll('-', '_')}_${mode}`;
   const baseUrl = `http://127.0.0.1:${port}`;
   const child = startServer({ mode, port, databaseName });
   let sampler;
@@ -79,7 +79,7 @@ async function exerciseMode(mode) {
     sampler = startMetricSampler(baseUrl);
     await request(`${baseUrl}/api/ideas`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ title: `${runId} ${mode}`, description: 'Stage 3B temporary seed' })
+      body: JSON.stringify({ title: `${runId} ${mode}`, description: 'Fault-validation temporary seed' })
     });
     const phases = {};
     phases.healthy = await runBatch(baseUrl, batchRequests, concurrency);
@@ -263,7 +263,7 @@ async function dropTemporaryDatabase(databaseName) {
 function renderReport(value) {
   const rows = value.modes.flatMap(({ mode, phases }) => Object.entries(phases).map(([phase, result]) => `<tr><td>${mode}</td><td>${phase}</td><td>${result.attempted}</td><td>${result.successful}</td><td>${result.failed}</td><td>${result.rejected503}</td><td>${result.timedOut504}</td><td>${result.serverError500}</td><td>${result.p95Ms} ms</td></tr>`)).join('');
   const findings = value.findings.map((finding) => `<li>${escapeHtml(finding)}</li>`).join('');
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Signalboard Stage 3B fault report</title><style>body{max-width:1100px;margin:40px auto;padding:0 20px;color:#17201d;font:14px system-ui}section{border:1px solid #dce4df;border-radius:12px;padding:18px;margin:14px 0}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd}.warn{color:#8a4b00}</style></head><body><h1>Signalboard Stage 3B fault report</h1><p>Controlled MongoDB transport latency, connection loss, recovery, and mixed-fault soak.</p><section><h2>Results</h2><table><thead><tr><th>Mode</th><th>Phase</th><th>Attempted</th><th>2xx</th><th>Failed</th><th>503</th><th>504</th><th>500</th><th>P95</th></tr></thead><tbody>${rows}</tbody></table></section><section><h2>Interpretation</h2><ul>${findings}</ul></section><p class="warn">This is a bounded transport-fault experiment, not a MongoDB replica-set correctness or throughput certification.</p><pre>${escapeHtml(JSON.stringify(value, null, 2))}</pre></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Signalboard MongoDB fault report</title><style>body{max-width:1100px;margin:40px auto;padding:0 20px;color:#17201d;font:14px system-ui}section{border:1px solid #dce4df;border-radius:12px;padding:18px;margin:14px 0}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd}.warn{color:#8a4b00}</style></head><body><h1>Signalboard MongoDB fault report</h1><p>Controlled MongoDB transport latency, connection loss, recovery, and mixed-fault soak.</p><section><h2>Results</h2><table><thead><tr><th>Mode</th><th>Phase</th><th>Attempted</th><th>2xx</th><th>Failed</th><th>503</th><th>504</th><th>500</th><th>P95</th></tr></thead><tbody>${rows}</tbody></table></section><section><h2>Interpretation</h2><ul>${findings}</ul></section><p class="warn">This is a bounded transport-fault experiment, not a MongoDB replica-set correctness or throughput certification.</p><pre>${escapeHtml(JSON.stringify(value, null, 2))}</pre></body></html>`;
 }
 
 function percentile(values, ratio) {

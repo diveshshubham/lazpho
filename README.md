@@ -10,13 +10,11 @@ Lazpho is not a rate limiter, reverse proxy, service mesh, distributed scheduler
 
 ## Install
 
-The proposed unscoped package name is `lazpho`. The registry currently has no package record for that name, but the project has not yet established ownership or published a release. After the first publish:
+Lazpho is currently available as a release candidate. Install the prerelease channel while the public 1.x contract is being finalized:
 
 ```bash
-npm install lazpho
+npm install lazpho@next
 ```
-
-Until then, validate a local release artifact with `npm run package:verify`, then install the generated versioned tarball from `artifacts/` in a test consumer.
 
 Requires Node.js 18 or later. `lazpho` is ESM-only and has no runtime dependencies.
 
@@ -30,12 +28,24 @@ import { createFactory } from 'lazpho';
 const factory = createFactory();
 const work = factory.concurrency({ name: 'database', limit: 20, maxQueueSize: 200 });
 
-const result = await work.run(() => queryDatabase());
+const result = await work.run(({ signal }) => queryDatabase({ signal }));
 await work.close();
 factory.close();
 ```
 
-Use `factory.adaptiveConcurrency(...)` when a fixed controller should adjust its limit from bounded controller metrics. The [vision and usage guide](docs/vision-and-usage.md) explains where Lazpho helps, where it does not, its limitations, and how to demonstrate its value. The [operations guide](docs/operations.md) shows how admission, cancellation, and shutdown fit together.
+Use `factory.adaptiveConcurrency(...)` when a fixed controller should adjust its limit from bounded controller metrics. Start with the [getting-started guide](docs/getting-started.md), follow the [adoption guide](docs/adoption-guide.md) for an existing application, and use the [testing guide](docs/testing.md) to verify real dependency bounds and recovery.
+
+### Choose your path
+
+| Goal | Read |
+| --- | --- |
+| Build a new Node.js application | [Getting started](docs/getting-started.md) |
+| Add Lazpho to existing code | [Adoption guide](docs/adoption-guide.md) |
+| Decide whether Lazpho fits | [Vision, fit, and limitations](docs/vision-and-usage.md) |
+| Test an integration or contribute | [Testing guide](docs/testing.md) |
+| See measured benefits and costs | [Signalboard example and comparison](docs/signalboard-comparison.md) |
+| Operate and tune controllers | [Production operations](docs/operations.md) |
+| Look up exact APIs | [API reference](docs/api.md) |
 
 ## Core API
 
@@ -208,7 +218,7 @@ Healthy queue signals allow normal probing. High queue utilization or queue wait
 
 Queue capacity and maximum wait remain fixed. This is in-process control, not durable queuing, distributed coordination, server autoscaling, or a guarantee of better throughput than a correctly tuned fixed limit.
 
-## Adaptive decisions (Phase 2B-1)
+## Read-only adaptive decisions
 
 The adaptive controller evaluates already-aggregated backend observations and recommends a safe next concurrency limit. It uses an exponentially weighted moving average (EWMA) for P95 latency, throughput, and error rate, then applies a deterministic additive-increase/multiplicative-decrease policy with hysteresis.
 
@@ -237,15 +247,15 @@ Healthy, throughput-improving windows can increase by `increaseStep`. Latency an
 
 Defaults are `increaseStep: 1`, `decreaseFactor: 0.8`, `errorDecreaseFactor: 0.5`, `ewmaAlpha: 0.2`, `healthyEvaluations: 2`, `unhealthyEvaluations: 2`, and `minThroughputImprovementRatio: 0.01`.
 
-`mode` may be `observe`, `recommend`, or `auto`. In this phase all modes return a decision with `willApply: false`: **Phase 2B-1 only produces adaptive decisions. It does not automatically change application concurrency yet.**
+`mode` may be `observe`, `recommend`, or `auto`. An adaptive controller without a linked fixed controller returns decisions with `willApply: false`; it cannot change application concurrency.
 
 The controller starts in `warmup`, then exposes `probing`, `stable`, or `backing_off` state through `state()`. Decisions include a deterministic reason and smoothed signals for logging or inspection. It consumes aggregate observations only and creates no timers or background polling.
 
-At the Phase 2B-1 decision-engine layer, decisions are in-process and depend on caller-provided aggregate observations. Phase 2B-2 adds the explicitly controlled integration described next.
+Read-only decisions are in-process and depend on caller-provided aggregate observations. Link a fixed controller to apply decisions as described next.
 
-## Closed-loop adaptive concurrency (Phase 2B-2)
+## Applying adaptive decisions
 
-Phase 2B-2 connects an adaptive evaluator to an existing fixed controller. Call `evaluateFromMetrics()` at an application reporting boundary to derive aggregate observations from the controller's bounded metrics; interval gating prevents repeated decisions within a window.
+A linked adaptive evaluator can update an existing fixed controller. Call `evaluateFromMetrics()` at an application reporting boundary to derive aggregate observations from the controller's bounded metrics; interval gating prevents repeated decisions within a window.
 
 Creating the adaptive controller does **not** start a background evaluation loop. The application must call `evaluateFromMetrics()` periodically (normally once per configured `evaluationIntervalMs`) for closed-loop changes to occur. Calls made sooner than the configured interval hold with `insufficient_data`; `recommend` remains read-only, while only a linked controller in `auto` mode can apply a new limit.
 
@@ -265,7 +275,7 @@ adaptive.evaluateFromMetrics();
 console.log(adaptive.stats());
 ```
 
-`observe` and `recommend` modes always remain read-only. In `auto` mode, Factory applies only non-hold decisions whose proposed limit is independently clamped to the configured bounds and still matches the fixed controller's current limit. Failures in the adaptive layer safely hold the current limit. Changing a limit uses the Phase 2A controller semantics: active operations continue, while new work waits until the lower limit permits it.
+`observe` and `recommend` modes always remain read-only. In `auto` mode, Factory applies only non-hold decisions whose proposed limit is independently clamped to the configured bounds and still matches the fixed controller's current limit. Failures in the adaptive layer safely hold the current limit. When a limit decreases, active operations continue while new work waits until the lower limit permits it.
 
 `stats()` exposes current/proposed limit, increases, decreases, holds, bounded decision history (50 entries by default), controller state, last decision, and time at the current limit. This is application-level concurrency control, not server or Kubernetes autoscaling, and it cannot guarantee increased throughput.
 
@@ -353,7 +363,7 @@ An already-accepted retry chain remains eligible to finish while `close()` drain
 
 ## Optional circuit breaker
 
-Configure a breaker on an individual concurrency controller to protect one dependency. It is disabled unless `circuitBreaker` is supplied and is construction-time-only in this phase.
+Configure a breaker on an individual concurrency controller to protect one dependency. It is disabled unless `circuitBreaker` is supplied and cannot be changed after construction.
 
 ```ts
 const payments = factory.concurrency({
@@ -679,7 +689,7 @@ const dashboard = await startLazphoDashboard({
 
 The dashboard defaults to `http://127.0.0.1:1912`, rejects non-loopback binding, protects mutations with a per-instance token plus Host/Origin checks, and can run only explicitly registered callbacks. It never crawls routes or manufactures requests to delete, payment, email, admin, or other potentially destructive APIs. Express, Fastify, and NestJS adapters accept an optional `factory` plus stable route resolver so one registration can collect inbound metrics for every framework route. Adaptive evaluation remains application-owned through `lazpho.evaluateAdaptive()`.
 
-See [Phase 8 application integration](docs/phase8-application-integration.md) for lifecycle, framework, scenario, and diagnostic guidance. The separate opt-in [Load Lab](docs/load-lab.md) provides per-endpoint checks and conservative load reports at `http://127.0.0.1:1913` by default.
+See [application integration](docs/application-integration.md) for lifecycle, framework, scenario, and diagnostic guidance. The separate opt-in [Load Lab](docs/load-lab.md) provides per-endpoint checks and conservative load reports at `http://127.0.0.1:1913` by default.
 
 ## Package API and release notes
 
@@ -693,18 +703,23 @@ The package ships ESM JavaScript and TypeScript declarations from `dist`, its do
 
 ### Documentation
 
+- [Getting started](docs/getting-started.md): installation, first protected dependency, error mapping, shutdown, and next steps.
+- [Adoption guide](docs/adoption-guide.md): introducing Lazpho safely into an existing application.
+- [Testing guide](docs/testing.md): application tests, Load Lab, A/B comparisons, repository gates, and honest load interpretation.
+- [Signalboard example and comparison](docs/signalboard-comparison.md): runnable architecture, measured benefits, costs, and limitations.
 - [Vision, fit, and limitations](docs/vision-and-usage.md): objectives, correct integration, beneficial and inappropriate uses, limitations, and responsible proof.
 - [API reference](docs/api.md): entry points, errors, public types, metrics, and HTTP mapping.
 - [Operations guide](docs/operations.md): architecture, tuning, failure handling, cardinality, and troubleshooting.
 - [Load Lab](docs/load-lab.md): safe endpoint registration, dashboard actions, reports, and honest RPS interpretation.
-- [Stage 3 validation](docs/stage3-validation.md): reproducible stress, soak, MongoDB A/B, and real-dashboard evidence.
-- [Stage 3B fault validation](docs/stage3b-fault-validation.md): controlled MongoDB latency, transport loss, breaker recovery, and mixed-fault soak evidence.
-- [Stage 3C replica-set validation](docs/stage3c-replica-set-validation.md): real three-member MongoDB elections, majority durability checks, and bounded application recovery evidence.
+- [Signalboard validation](docs/signalboard-validation.md): reproducible stress, soak, MongoDB A/B, and real-dashboard evidence.
+- [MongoDB fault validation](docs/mongodb-fault-validation.md): controlled latency, transport loss, breaker recovery, and mixed-fault soak evidence.
+- [MongoDB replica-set validation](docs/mongodb-replica-set-validation.md): real three-member elections, majority durability checks, and bounded application recovery evidence.
 - [Compatibility contract](docs/compatibility.md): supported runtimes, TypeScript/framework matrix, and public surface.
 - [Versioning policy](docs/versioning.md): stable versus internal APIs, SemVer, deprecation, and release notes.
 - [Migration guide](docs/migration.md): package rename and future breaking-release instructions.
-- [Phase 8B bottleneck lab](docs/phase8b-bottleneck-lab.md): full-path scenarios, dashboard, and controller-placement guidance.
-- [Phase 8 application integration](docs/phase8-application-integration.md): reusable registry, safe scenarios, and loopback dashboard.
+- [Bottleneck lab](docs/bottleneck-lab.md): full-path scenarios, dashboard, and controller-placement guidance.
+- [Application integration](docs/application-integration.md): reusable registry, safe scenarios, and loopback dashboard.
+- [Application benchmark](docs/application-benchmark.md): sustained traffic, adaptive decisions, overload, and recovery.
 - [1.0 readiness checklist](docs/1.0-readiness.md): machine gates and remaining human/external decisions.
 - [Changelog](CHANGELOG.md), [security policy](SECURITY.md), and [contributing guide](CONTRIBUTING.md).
 
@@ -725,7 +740,7 @@ Then generate enough concurrent load to exceed the simulated backend's healthy r
 npm run load:adaptive
 ```
 
-`GET /work` uses the actual Phase 2A controller and simulates a resource that is fast up to 40 active operations, slows progressively between 41 and 55, and becomes slow with deterministic failures above 55. Every two seconds, the demo derives observations through `evaluateFromMetrics()` and prints the applied adaptive decision. Visit `http://localhost:3000/factory` to inspect the current limit, decision, smoothed signals, controller activity, and limit-change counters.
+`GET /work` uses a fixed controller and simulates a resource that is fast up to 40 active operations, slows progressively between 41 and 55, and becomes slow with deterministic failures above 55. Every two seconds, the demo derives observations through `evaluateFromMetrics()` and prints the applied adaptive decision. Visit `http://localhost:3000/factory` to inspect the current limit, decision, smoothed signals, controller activity, and limit-change counters.
 
 ## Development
 
@@ -742,9 +757,9 @@ npm run benchmark:adaptive
 npm run benchmark:observability
 npm run bench:adaptive
 npm run bench:saturation
-npm run bench:phase8
-npm run lab:phase8b
-npm run lab:phase8b:smoke
+npm run bench:application
+npm run lab:bottleneck
+npm run lab:bottleneck:smoke
 npm run stress
 npm run soak
 npm run soak:long
@@ -764,15 +779,15 @@ Release preparation is intentionally maintainer-controlled:
 4. A tag-triggered workflow repeats every release gate, validates one exact tarball, uploads it, checks that the npm version is unused, and publishes that same tarball. Stable versions use `latest`, `beta` prereleases use `beta`, and other prereleases use `next`.
 5. The GitHub Release is created only after npm publication. If that final step fails, recover by creating the GitHub Release manually; never republish or unpublish the immutable npm version.
 
-The first publication requires the authenticated npm maintainer to bootstrap ownership of the unscoped `lazpho` name. The tag workflow accepts either npm trusted publishing for `diveshshubham/lazpho` and `release.yml`, or an explicitly approved temporary `NPM_TOKEN` repository secret. It publishes with public access and provenance from GitHub-hosted infrastructure. After bootstrap, configure trusted publishing and remove the temporary write token. The publish job has scoped `id-token: write`; only the post-publish GitHub Release job receives `contents: write`.
+The package is owned by the authenticated npm maintainer. The tag workflow is prepared for npm trusted publishing from `diveshshubham/lazpho` and `release.yml`; a temporary `NPM_TOKEN` remains only until a subsequent prerelease verifies OIDC provenance. The publish job has scoped `id-token: write`; only the post-publish GitHub Release job receives `contents: write`.
 
 `npm run release:check` performs the release-critical local tests without publishing. `npm run release:dry-run` adds deterministic stress and short soak gates. Neither command changes the package version or API snapshots.
 
 The example emits global resources and per-route metrics every five seconds. The benchmark runs equivalent Node HTTP servers with and without instrumentation and reports request throughput, difference, and overhead percentage. Benchmark results vary by operating system, Node version, CPU governor, and concurrent activity.
 
-`npm run bench:phase8` runs sustained healthy, saturation, slowdown, and recovery periods against a real local Node HTTP dependency. It compares unlimited, fixed-limit, and adaptive strategies, classifies Lazpho rejections/timeouts separately from downstream failures, and prints a per-window adaptive timeline. See [Phase 8 real-application validation](docs/phase8-validation.md).
+`npm run bench:application` runs sustained healthy, saturation, slowdown, and recovery periods against a real local Node HTTP dependency. It compares unlimited, fixed-limit, and adaptive strategies, classifies Lazpho rejections/timeouts separately from downstream failures, and prints a per-window adaptive timeline. See the [real-application adaptive benchmark](docs/application-benchmark.md).
 
-`npm run lab:phase8b` starts the full-path bottleneck lab and dashboard on `http://127.0.0.1:1912`. Every inbound lab route is instrumented, while shared controllers protect the actual database, payment, and report capacity pools. The scenarios cover healthy and legitimately slow work, CPU pressure, dependency saturation, retry recovery, mixed work, bulkhead isolation, breaker trip/recovery, execution timeout, and client disconnect. Use `LAZPHO_DASHBOARD_PORT` to override the port, or `npm run lab:phase8b:smoke` for the reduced automated check. See [Phase 8B full-path bottleneck lab](docs/phase8b-bottleneck-lab.md).
+`npm run lab:bottleneck` starts the full-path bottleneck lab and dashboard on `http://127.0.0.1:1912`. Every inbound lab route is instrumented, while shared controllers protect the actual database, payment, and report capacity pools. The scenarios cover healthy and legitimately slow work, CPU pressure, dependency saturation, retry recovery, mixed work, bulkhead isolation, breaker trip/recovery, execution timeout, and client disconnect. Use `LAZPHO_DASHBOARD_PORT` to override the port, or `npm run lab:bottleneck:smoke` for the reduced automated check. See the [full-path bottleneck lab](docs/bottleneck-lab.md).
 
 `npm run stress` runs a seeded adversarial controller scenario (default seed `184732`, 5,000 logical submissions). Set `STRESS_SEED` and `STRESS_TASKS` to reproduce or scale a scenario. It includes a retry-storm/recovery phase with bounded two-retry chains and reports logical submissions, total active attempts, retry attempts, retry successes, exhausted chains, cancellations, timeouts, queue/lifecycle rejections, peak active/queue, and invariant violations. Stress checks controller accounting, bounded queue behavior, cancellation and timeout races, shutdown draining, atomic reconfiguration, and adaptive snapshot bounds; it exits non-zero on an invariant violation.
 
