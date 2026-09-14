@@ -27,6 +27,7 @@ The supported entry points are:
 - `lazpho/config`
 - `lazpho/application`
 - `lazpho/load-lab`
+- `lazpho/openapi-load-lab`
 - `lazpho/fetch`
 - `lazpho/node-http`
 - `lazpho/observability`
@@ -73,7 +74,7 @@ Normal tests never update API contracts.
 - core runtime use without framework peers;
 - native fetch and legacy `run(async () => value)` behavior;
 - rejection of undeclared internal subpaths;
-- runtime resolution of all eleven public entry points;
+- runtime resolution of all twelve public entry points;
 - positive and negative public TypeScript usage under TypeScript 5.7.2 and the current compiler;
 - absence of repository `src`, tests, compatibility fixtures, and path aliases from the consumer package.
 
@@ -89,7 +90,7 @@ The boundary results above were produced on Node 24.11.1 with Express types 4.17
 - Metrics: snapshots, exporters, OpenTelemetry instruments, metric names, and numeric mappings.
 - Adapters: fetch, Node HTTP, Express, Fastify, and NestJS setup, cancellation, mapping, and ownership behavior.
 - Application integration: central registry, route mappings, explicit scenarios, loopback dashboard, and lifecycle ownership.
-- Load Lab: explicit safe endpoint catalog, bounded local runner, loopback UI, and HTML/JSON reports.
+- Load Lab: explicit safe endpoint catalog, conservative OpenAPI discovery, executable CLI, bounded local runner, loopback UI, and HTML/JSON reports.
 - Internal: scheduler, controller implementations, EWMA, metric aggregators, queue nodes, and other undeclared subpaths.
 
 ## Automated compatibility gates

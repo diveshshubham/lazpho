@@ -1,6 +1,6 @@
 {
   "name": "lazpho",
-  "version": "0.1.0-rc.2",
+  "version": "1.0.0",
   "description": "Adaptive concurrency, bounded backpressure, and dependency resilience for Node.js.",
   "license": "MIT",
   "repository": {
@@ -63,6 +63,10 @@
       "types": "./dist/load-lab.d.ts",
       "import": "./dist/load-lab.js"
     },
+    "./openapi-load-lab": {
+      "types": "./dist/openapi-load-lab.d.ts",
+      "import": "./dist/openapi-load-lab.js"
+    },
     "./express": {
       "types": "./dist/adapters/express.d.ts",
       "import": "./dist/adapters/express.js"
@@ -99,6 +103,7 @@
     "release:check": "npm run release:version:check:local && npm test && npm run api:check && npm run package:verify",
     "release:dry-run": "npm run release:check && npm run stress && npm run soak",
     "readiness:audit": "node scripts/readiness.mjs",
+    "validation:report": "node scripts/consolidate-validation.mjs",
     "release:readiness": "npm run release:dry-run && npm run readiness:audit",
     "prepack": "npm run build:package",
     "prepublishOnly": "npm run release:check",
@@ -169,5 +174,8 @@
     "rxjs": {
       "optional": true
     }
+  },
+  "bin": {
+    "lazpho": "./dist/cli.js"
   }
 }

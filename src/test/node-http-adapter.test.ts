@@ -57,6 +57,41 @@ test('normal response completion disposes request cancellation listeners without
   assert.equal(response.listenerCount('close'), 0);
 });
 
+test('a completed body-parsed request is not treated as disconnected when already destroyed', () => {
+  const socket = new EventEmitter();
+  const request = Object.assign(new EventEmitter(), {
+    socket,
+    aborted: false,
+    complete: true,
+    destroyed: true,
+  }) as unknown as IncomingMessage;
+  const response = Object.assign(new EventEmitter(), { writableFinished: false }) as unknown as ServerResponse;
+  const handle = createRequestAbortSignal(request, response);
+
+  assert.equal(handle.signal.aborted, false);
+  response.emit('finish');
+  assert.equal(handle.signal.aborted, false);
+  assert.equal(request.listenerCount('aborted'), 0);
+  assert.equal(request.listenerCount('close'), 0);
+  assert.equal(socket.listenerCount('close'), 0);
+});
+
+test('an incomplete destroyed request is still treated as disconnected', () => {
+  const socket = new EventEmitter();
+  const request = Object.assign(new EventEmitter(), {
+    socket,
+    aborted: false,
+    complete: false,
+    destroyed: true,
+  }) as unknown as IncomingMessage;
+  const response = Object.assign(new EventEmitter(), { writableFinished: false }) as unknown as ServerResponse;
+  const handle = createRequestAbortSignal(request, response);
+
+  assert.equal(handle.signal.aborted, true);
+  assert.equal(request.listenerCount('aborted'), 0);
+  assert.equal(response.listenerCount('finish'), 0);
+});
+
 test('real client disconnect aborts a Lazpho operation and controller shutdown completes', async () => {
   const controller = createFactory().concurrency({ name: 'request-disconnect', limit: 1 });
   let operationStarted: () => void = () => undefined;

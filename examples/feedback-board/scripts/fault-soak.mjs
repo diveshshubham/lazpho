@@ -8,7 +8,7 @@ import { MongoClient } from 'mongodb';
 import { startMongoFaultProxy } from './mongo-fault-proxy.mjs';
 
 const exampleRoot = fileURLToPath(new URL('..', import.meta.url));
-const upstreamUri = new URL(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27018');
+const upstreamUri = new URL(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017');
 const upstreamHost = upstreamUri.hostname;
 const upstreamPort = Number(upstreamUri.port || 27017);
 const concurrency = boundedInteger(process.env.FAULT_CONCURRENCY, 32, 1, 128);

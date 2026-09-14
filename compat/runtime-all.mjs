@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
 const expected = [
-  'lazpho', 'lazpho/config', 'lazpho/application', 'lazpho/load-lab', 'lazpho/fetch', 'lazpho/node-http',
+  'lazpho', 'lazpho/config', 'lazpho/application', 'lazpho/load-lab', 'lazpho/openapi-load-lab', 'lazpho/fetch', 'lazpho/node-http',
   'lazpho/observability', 'lazpho/opentelemetry', 'lazpho/express',
   'lazpho/fastify', 'lazpho/nestjs'
 ];

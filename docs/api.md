@@ -10,6 +10,7 @@ This is the human-readable map of Lazpho's supported package surface. The declar
 | `lazpho/config` | Presets, validation, inspection | `createLazphoPreset`, `listLazphoPresets`, `getLazphoPresetInfo`, `resolveLazphoConfig`, `validateLazphoConfig`, `inspectLazphoConfig` |
 | `lazpho/application` | Central controller registry and loopback dashboard | `createLazphoApplication`, `startLazphoDashboard` |
 | `lazpho/load-lab` | Safe endpoint checks and bounded local load reports | `startLazphoLoadLab` |
+| `lazpho/openapi-load-lab` | Conservative OpenAPI discovery and generic Load Lab startup | `discoverLazphoOpenApiEndpoints`, `startLazphoOpenApiLoadLab` |
 | `lazpho/fetch` | Native fetch protection | `createProtectedFetch` |
 | `lazpho/node-http` | Node HTTP metrics and request abort bridge | `instrumentNodeHttp`, `createRequestAbortSignal` |
 | `lazpho/observability` | Pull and push metric integration | `createMetricsCollector`, `createMetricsExporter` |
@@ -74,7 +75,7 @@ The shared framework HTTP mapping uses 503 for saturation, open breaker, and lif
 
 ## Public types
 
-The root exports controller, lifecycle, factory, adaptive, queue-pressure, breaker, bulkhead, retry, metrics, request, protected-function, `RunContext`, and `RunOptions` types. `lazpho/application` exports its registry, scenario, dashboard, state, and result types. `lazpho/load-lab` exports endpoint, managed fixture/request/cleanup context, profile, state, result, controller-impact, and dashboard types. Each adapter subpath exports its own option/context types. Type compatibility is protected even where no JavaScript symbol exists.
+The root exports controller, lifecycle, factory, adaptive, queue-pressure, breaker, bulkhead, retry, metrics, request, protected-function, `RunContext`, and `RunOptions` types. `lazpho/application` exports its registry, scenario, dashboard, state, and result types. `lazpho/load-lab` exports endpoint, managed fixture/request/cleanup context, profile, state, result, controller-impact, and dashboard types. `lazpho/openapi-load-lab` exports conservative discovery/startup functions and their option types. Each adapter subpath exports its own option/context types. Type compatibility is protected even where no JavaScript symbol exists.
 
 ## Operational metrics
 

@@ -3,6 +3,10 @@ import type { ConcurrencyController, RunContext, RunOptions } from 'lazpho';
 import { createLazphoPreset, inspectLazphoConfig } from 'lazpho/config';
 import { startLazphoLoadLab } from 'lazpho/load-lab';
 import type { LazphoLoadEndpoint, LazphoLoadProfile } from 'lazpho/load-lab';
+import {
+  discoverLazphoOpenApiEndpoints,
+  startLazphoOpenApiLoadLab,
+} from 'lazpho/openapi-load-lab';
 import { createProtectedFetch } from 'lazpho/fetch';
 import { createRequestAbortSignal } from 'lazpho/node-http';
 import { createMetricsCollector, createMetricsExporter } from 'lazpho/observability';
@@ -49,10 +53,13 @@ const loadEndpoint: LazphoLoadEndpoint = {
   cleanup: () => undefined
 };
 const loadProfile: LazphoLoadProfile = { mode: 'load', requestsPerSecond: 10_000, durationSeconds: 10 };
+const discoveredEndpoints = discoverLazphoOpenApiEndpoints({
+  paths: { '/health': { get: { operationId: 'health' } } }
+});
 
 void [legacy, contextual, options, protectedFunction, protectedFetch, collect, exporter, telemetry,
   expressMiddleware, expressContext, fastifyContext, lazphoFastifyPlugin, LAZPHO_CONTROLLER, nestModule, inspection, adaptive,
-  startLazphoLoadLab, loadEndpoint, loadProfile];
+  startLazphoLoadLab, startLazphoOpenApiLoadLab, loadEndpoint, loadProfile, discoveredEndpoints];
 
 // @ts-expect-error preset names are a closed public union
 createLazphoPreset('unknown');

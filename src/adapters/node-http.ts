@@ -45,7 +45,9 @@ export function createRequestAbortSignal(request: IncomingMessage, response?: Se
   request.socket.once('close', onSocketClose);
   response?.once('finish', onResponseFinish);
   response?.once('close', onResponseClose);
-  if (request.aborted || request.destroyed) abort('Incoming HTTP request was already aborted.');
+  if (request.aborted || (request.destroyed && !request.complete)) {
+    abort('Incoming HTTP request was already aborted.');
+  }
   return { signal: controller.signal, dispose };
 }
 
