@@ -35,6 +35,7 @@ try {
   await cp(resolve(root, 'compat/runtime-all.mjs'), join(fullConsumer, 'runtime-all.mjs'));
   await cp(resolve(root, 'compat/consumer.ts'), join(fullConsumer, 'consumer.ts'));
   run(process.execPath, ['runtime-all.mjs'], fullConsumer);
+  runNpm(['exec', '--offline', '--', 'lazpho', '--help'], fullConsumer);
   const installedPackage = join(fullConsumer, 'node_modules', ...packageJson.name.split('/'));
   await assert.rejects(access(join(installedPackage, 'src')));
   await assert.rejects(access(join(installedPackage, 'compat')));

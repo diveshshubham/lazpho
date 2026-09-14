@@ -71,6 +71,7 @@ const contract = JSON.parse(JSON.stringify(sortObject({
     type: packageJson.type,
     sideEffects: packageJson.sideEffects,
     engines: packageJson.engines,
+    bin: packageJson.bin,
     exports: packageJson.exports,
     peerDependencies: packageJson.peerDependencies,
     peerDependenciesMeta: packageJson.peerDependenciesMeta

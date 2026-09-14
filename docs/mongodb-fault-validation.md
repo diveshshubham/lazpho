@@ -46,3 +46,24 @@ The direct mode's successful mixed-soak requests do not mean the outage was free
 - Production-like replica-set and network-emulation testing remains required before making database failover claims.
 
 The required `Signalboard MongoDB and Load Lab` CI job runs a shorter version of this experiment on Linux against MongoDB 8 and retains its reports for 14 days.
+
+## Verification rerun on 2026-09-14
+
+The default local upstream was corrected from the proxy-style port `27018` to MongoDB's local default `27017`. Before this correction, a no-argument run failed before validation and surfaced the unreachable upstream again during exact database cleanup. `MONGODB_URI` remains available when the upstream uses another address.
+
+The corrected default completed the full transport-fault validation:
+
+| Mode | Phase | Attempted | Successful | Failed | 503 | 504 | Network | P95 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Direct | Healthy | 80 | 80 | 0 | 0 | 0 | 0 | 129.9 ms |
+| Direct | 300 ms injected round trip | 80 | 80 | 0 | 0 | 0 | 0 | 665.8 ms |
+| Direct | Transport outage | 40 | 0 | 40 | 0 | 0 | 40 | 4,025.9 ms |
+| Direct | Recovery | 80 | 80 | 0 | 0 | 0 | 0 | 98.4 ms |
+| Direct | 20-second mixed soak | 5,829 | 5,829 | 0 | 0 | 0 | 0 | 623.8 ms |
+| Lazpho | Healthy | 80 | 80 | 0 | 0 | 0 | 0 | 99.0 ms |
+| Lazpho | 300 ms injected round trip | 80 | 48 | 32 | 0 | 32 | 0 | 961.9 ms |
+| Lazpho | Transport outage | 40 | 0 | 40 | 4 | 36 | 0 | 2,255.1 ms |
+| Lazpho | Recovery | 80 | 80 | 0 | 0 | 0 | 0 | 68.1 ms |
+| Lazpho | 20-second mixed soak | 3,900 | 3,654 | 246 | 0 | 246 | 0 | 760.9 ms |
+
+The sampler observed Lazpho at a peak of 6 active and 26 queued MongoDB operations with zero limit violations across 1,934 samples. The breaker tripped six times, recovered to `closed`, and the controller ended with zero active and queued work. Temporary databases were removed through the direct upstream connection.

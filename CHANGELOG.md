@@ -2,7 +2,29 @@
 
 Notable changes are recorded here using a concise Keep-a-Changelog-inspired structure.
 
-## Unreleased
+## 1.0.0 - 2026-09-14
+
+### Added
+
+- Added the executable `lazpho load-lab` CLI and `lazpho/openapi-load-lab` entry point for conservative OpenAPI discovery, automatically enabling only parameter-free GET/HEAD operations while leaving mutations and unresolved routes visible but disabled.
+- Added CLI/package-consumer coverage, remote-target rejection, bounded OpenAPI document loading, server-side request headers, and generic OpenAPI Load Lab documentation for the stable release.
+- Added repeatable `--header-env name:ENVIRONMENT_VARIABLE` CLI input for authenticated tests without placing secret values in process arguments, including missing-variable and duplicate-header validation.
+- Added a reproducible Sagavoya authenticated queue-screening and ten-minute soak record with explicit success/latency acceptance checks, recovery evidence, limitations, and a provisional bounded configuration.
+- Added `npm run validation:report` to consolidate local Sagavoya and MongoDB transport-fault evidence into standalone JSON/HTML with an explicit `READY` or `NOT_READY` result.
+- Added a reusable authenticated Sagavoya phased runner with warm-up, strict status accounting, controller deltas, drain evidence, and secret-free JSON/HTML reports.
+- Added Sagavoya MongoDB driver-pool counters and phased sampling for event-loop lag, controller queue/execution latency, concurrency, and pool checkout pressure.
+
+### Changed
+
+- Declared the documented root exports, twelve package subpaths, CLI, types, metrics, errors, lifecycle values, and adapter contracts as the stable 1.x public surface.
+- Replaced the release workflow's long-lived npm token with workflow-specific OIDC trusted publishing.
+
+### Fixed
+
+- Prevented body-parsed, already-complete Node requests from being misclassified as client disconnects when Express or NestJS installs the abort bridge after request-body consumption.
+- Corrected the Signalboard MongoDB fault runner's default upstream port from the proxy-style port `27018` to the local MongoDB default `27017`, restoring no-argument fault and cleanup validation.
+- Corrected Sagavoya validation distortion by keeping health/metrics probes outside application admission and making per-request logging explicitly disableable for controlled benchmarks; the rerun cleared steady, capacity, recovery, and drain checks while retaining the remaining overload-P95 failure.
+- Rejected an overly aggressive Sagavoya queue-wait calibration that improved one overload percentile but materially degraded post-overload recovery, retaining the safer provisional profile.
 
 ## 0.1.0-rc.2 - 2026-09-09
 

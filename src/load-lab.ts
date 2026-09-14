@@ -621,7 +621,7 @@ function normalizeTarget(value: string, allowRemote: boolean): URL {
 }
 
 function normalizeEndpoints(input: readonly LazphoLoadEndpoint[]): readonly NormalizedEndpoint[] {
-  if (!Array.isArray(input) || input.length === 0 || input.length > 100) throw new RangeError('endpoints must contain 1 to 100 entries.');
+  if (!Array.isArray(input) || input.length === 0 || input.length > 1_000) throw new RangeError('endpoints must contain 1 to 1,000 entries.');
   const ids = new Set<string>();
   return Object.freeze(input.map((endpoint) => {
     if (!endpoint || typeof endpoint !== 'object') throw new TypeError('Each endpoint must be an object.');

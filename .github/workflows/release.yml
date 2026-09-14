@@ -113,11 +113,12 @@ jobs:
           node scripts/release-version.mjs check-unpublished
       - name: Publish validated artifact
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_DIST_TAG: ${{ needs.version.outputs.npm_dist_tag }}
         # The leading ./ makes npm treat the expanded value as a local tarball
         # path instead of a GitHub shorthand such as owner/repository.
-        run: npm publish ./artifacts/*.tgz --provenance --access public --tag "$NPM_DIST_TAG"
+        # npm authenticates this command through the package's workflow-specific
+        # trusted-publisher binding and the job's short-lived OIDC identity.
+        run: npm publish ./artifacts/*.tgz --access public --tag "$NPM_DIST_TAG"
 
   github-release:
     name: Create GitHub Release after npm publish

@@ -2,7 +2,55 @@
 
 Load Lab is an opt-in, loopback-only dashboard for controlled endpoint checks. It exists to show how a Lazpho-protected application behaves; it is not a replacement for Swagger, k6, Grafana, a distributed load platform, or production observability.
 
-## Start the dashboard
+## Quick start from OpenAPI
+
+After installing Lazpho, start the application and run:
+
+```powershell
+npx lazpho load-lab --target http://127.0.0.1:3000 --openapi /openapi.json
+```
+
+Open `http://127.0.0.1:1913`. The CLI imports the operation catalog and gives every discovered path its own **Send once**, **Test latency**, and **Load test** controls. It automatically enables only GET and HEAD operations without unresolved required parameters. Mutations and parameterized routes remain visible but disabled because OpenAPI alone cannot prove that credentials, payloads, fixtures, and cleanup are safe.
+
+Common options:
+
+```powershell
+npx lazpho load-lab `
+  --target http://127.0.0.1:4000 `
+  --openapi /api/docs-json `
+  --port 4100 `
+  --header "authorization:Bearer <token>" `
+  --reports ./load-reports
+```
+
+For credentials, prefer an environment-backed header so the value does not appear in shell history or the process command line:
+
+```powershell
+$env:LAZPHO_AUTHORIZATION = 'Bearer <short-lived-test-token>'
+npx lazpho load-lab `
+  --target http://127.0.0.1:4000 `
+  --openapi /api/docs-json `
+  --header-env 'authorization:LAZPHO_AUTHORIZATION'
+Remove-Item Env:LAZPHO_AUTHORIZATION
+```
+
+`--header-env` accepts `name:ENVIRONMENT_VARIABLE` and may be repeated. The referenced variable must be set and non-empty. Duplicate header names across `--header` and `--header-env` are rejected instead of silently overriding a credential.
+
+Run `npx lazpho --help` for all options. Header values are held server-side and excluded from dashboard state and reports. Environment variables reduce accidental command-line exposure but remain readable to processes with sufficient access to the same account. Use a short-lived, least-privilege test credential and remove it after the run. Non-loopback targets require `--allow-remote`; use it only for an explicitly authorized staging environment.
+
+The same discovery layer is available programmatically:
+
+```ts
+import { startLazphoOpenApiLoadLab } from 'lazpho/openapi-load-lab';
+
+const lab = await startLazphoOpenApiLoadLab({
+  targetBaseUrl: 'http://127.0.0.1:3000',
+  openApiPath: '/openapi.json',
+  port: 1913
+});
+```
+
+## Programmatic dashboard with metrics and fixtures
 
 ```ts
 import { startLazphoLoadLab } from 'lazpho/load-lab';
@@ -50,7 +98,7 @@ For a mutating endpoint, `setup` runs once before measurements, `request` builds
 
 ## Safety boundary
 
-Load Lab never crawls framework routes or imports an OpenAPI document automatically. The application must explicitly register every endpoint and set `safe`. This prevents a dashboard from guessing credentials, fixtures, idempotency, or cleanup behavior for payment, email, delete, and administrative routes.
+The base `lazpho/load-lab` API never crawls framework routes: the application explicitly registers endpoints and owns every `safe` decision. The separate CLI and `lazpho/openapi-load-lab` importer conservatively discover an OpenAPI catalog, but enable only parameter-free GET/HEAD operations. They never infer safe mutations, credentials, fixtures, idempotency, or cleanup behavior for payment, email, delete, and administrative routes.
 
 Additional controls are intentional:
 
@@ -137,7 +185,8 @@ Every POST requires the `x-lazpho-dashboard-token` header. Browser users do not 
 - static defaults with optional application-owned fixture, dynamic request, and cleanup callbacks;
 - no automatic authentication refresh or inferred fixture behavior;
 - path parameters must be resolved explicitly by the registered `request` callback;
-- no OpenAPI import, distributed workers, ramp profiles, or A/B orchestration;
+- OpenAPI import enables only conservative parameter-free reads; managed mutations still require programmatic registration;
+- no distributed workers, ramp profiles, or A/B orchestration;
 - observed controller peaks are sampled and can miss operations shorter than the sampling interval;
 - HTTP latency includes local client, networking, framework, queue, dependency, and response-body time.
 

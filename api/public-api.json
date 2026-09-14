@@ -180,6 +180,9 @@
     }
   },
   "package": {
+    "bin": {
+      "lazpho": "./dist/cli.js"
+    },
     "engines": {
       "node": ">=18.0.0"
     },
@@ -223,6 +226,10 @@
       "./observability": {
         "import": "./dist/observability.js",
         "types": "./dist/observability.d.ts"
+      },
+      "./openapi-load-lab": {
+        "import": "./dist/openapi-load-lab.js",
+        "types": "./dist/openapi-load-lab.d.ts"
       },
       "./opentelemetry": {
         "import": "./dist/adapters/opentelemetry.js",
@@ -442,6 +449,10 @@
     "lazpho/observability": [
       "createMetricsCollector",
       "createMetricsExporter"
+    ],
+    "lazpho/openapi-load-lab": [
+      "discoverLazphoOpenApiEndpoints",
+      "startLazphoOpenApiLoadLab"
     ],
     "lazpho/opentelemetry": [
       "LAZPHO_OTEL_METRIC_NAMES",

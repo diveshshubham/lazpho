@@ -57,6 +57,7 @@ async function validateMetadata() {
   assert.equal(packageJson.private, undefined, 'publishable package must not be private');
   assert.equal(packageJson.type, 'module');
   assert.equal(packageJson.sideEffects, false);
+  assert.deepEqual(packageJson.bin, { lazpho: './dist/cli.js' });
   assert.deepEqual(packageJson.files, ['dist', 'docs', 'README.md', 'LICENSE', 'CHANGELOG.md', 'SECURITY.md', 'CONTRIBUTING.md']);
   assert.equal(packageJson.license, 'MIT');
   assert.equal(packageJson.engines.node, '>=18.0.0');
@@ -81,6 +82,9 @@ function validateFileList(paths) {
     for (const path of [target.import, target.types].map((value) => value.replace(/^\.\//, ''))) {
       assert.ok(paths.includes(path), `Missing exported artifact ${path}`);
     }
+  }
+  for (const target of Object.values(packageJson.bin)) {
+    assert.ok(paths.includes(target.replace(/^\.\//, '')), `Missing executable artifact ${target}`);
   }
   for (const forbidden of [/^src\//, /^api\//, /^compat\//, /^scripts\//, /^dist\/(?:test|benchmark|stress|soak|example)\//, /(?:^|\/)(?:coverage|node_modules)(?:\/|$)/, /\.(?:log|tgz)$/]) {
     assert.equal(paths.some((path) => forbidden.test(path)), false, `Forbidden package content matched ${forbidden}`);

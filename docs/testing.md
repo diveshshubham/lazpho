@@ -31,7 +31,7 @@ The optional [Load Lab](load-lab.md) gives every explicitly registered safe endp
 - **Test latency** for sequential P50/P95/P99 measurements;
 - **Load test** for bounded admission, queue, error, and achieved-rate evidence.
 
-Load Lab binds to loopback by default and intentionally does not crawl Swagger/OpenAPI routes. The application owns authentication, request construction, fixture setup, and cleanup.
+Load Lab binds to loopback by default. `npx lazpho load-lab` can conservatively discover an OpenAPI document, automatically enabling only parameter-free GET/HEAD operations. Use `--header-env name:ENVIRONMENT_VARIABLE` for short-lived test credentials without placing their values in command arguments. The programmatic API remains required when the application must own authentication refresh, dynamic request construction, mutation fixtures, or cleanup.
 
 ## Compare protected and unprotected modes
 
@@ -57,6 +57,7 @@ npm run api:check
 npm run stress
 npm run soak
 npm run package:verify
+npm run validation:report
 ```
 
 Additional diagnostics:
@@ -69,7 +70,7 @@ npm run bench:application
 npm run lab:bottleneck:smoke
 ```
 
-`npm test` runs behavioral and documentation/workflow tests. `api:check` detects public runtime/type drift. `package:verify` packs the exact npm artifact and installs it into clean core, framework, and TypeScript consumers. Stress and soak runs assert accounting, cleanup, cancellation, retry, breaker, and lifecycle invariants.
+`npm test` runs behavioral and documentation/workflow tests. `api:check` detects public runtime/type drift. `package:verify` packs the exact npm artifact and installs it into clean core, framework, and TypeScript consumers. Stress and soak runs assert accounting, cleanup, cancellation, retry, breaker, and lifecycle invariants. `validation:report` combines the latest local Sagavoya authenticated soak and Signalboard MongoDB fault report; it reports `NOT_READY` and exits unsuccessfully rather than hiding a failed acceptance check.
 
 ## Signalboard test commands
 
@@ -97,6 +98,8 @@ docker compose -f docker-compose.replica-set.yml down --volumes
 ```
 
 Reports are written under the ignored `examples/feedback-board/load-reports/` directory. CI retains Signalboard reports as workflow artifacts for 14 days.
+
+The [Sagavoya validation record](sagavoya-validation.md) shows how to report an existing application's authenticated screening and sustained soak honestly, including a run that recovered correctly but did not pass its stable-release latency and success targets.
 
 ## Interpreting requested RPS honestly
 

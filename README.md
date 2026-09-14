@@ -10,10 +10,10 @@ Lazpho is not a rate limiter, reverse proxy, service mesh, distributed scheduler
 
 ## Install
 
-Lazpho is currently available as a release candidate. Install the prerelease channel while the public 1.x contract is being finalized:
+Install the stable package:
 
 ```bash
-npm install lazpho@next
+npm install lazpho
 ```
 
 Requires Node.js 18 or later. `lazpho` is ESM-only and has no runtime dependencies.
@@ -689,15 +689,15 @@ const dashboard = await startLazphoDashboard({
 
 The dashboard defaults to `http://127.0.0.1:1912`, rejects non-loopback binding, protects mutations with a per-instance token plus Host/Origin checks, and can run only explicitly registered callbacks. It never crawls routes or manufactures requests to delete, payment, email, admin, or other potentially destructive APIs. Express, Fastify, and NestJS adapters accept an optional `factory` plus stable route resolver so one registration can collect inbound metrics for every framework route. Adaptive evaluation remains application-owned through `lazpho.evaluateAdaptive()`.
 
-See [application integration](docs/application-integration.md) for lifecycle, framework, scenario, and diagnostic guidance. The separate opt-in [Load Lab](docs/load-lab.md) provides per-endpoint checks and conservative load reports at `http://127.0.0.1:1913` by default.
+See [application integration](docs/application-integration.md) for lifecycle, framework, scenario, and diagnostic guidance. The separate opt-in [Load Lab](docs/load-lab.md) provides per-endpoint checks and conservative load reports at `http://127.0.0.1:1913` by default. For an existing OpenAPI application, start it with `npx lazpho load-lab --target http://127.0.0.1:3000 --openapi /openapi.json`; only parameter-free GET/HEAD operations are enabled automatically. Authenticated checks can read a short-lived credential through `--header-env authorization:ENVIRONMENT_VARIABLE` without placing its value in command arguments.
 
 ## Package API and release notes
 
 The public entry point exports `createFactory`, `createProtectedFunction`, error classification helpers, public controller/configuration/snapshot/lifecycle/run types, and distinguishable controller errors. Error instances retain their classes and expose stable `FACTORY_*` codes plus small immutable metadata fields such as controller, bulkhead, and capacity.
 
-The supported runtime matrix, eleven public package subpaths, ESM policy, TypeScript range, and framework peer ranges are defined in [Compatibility and public API stability](docs/compatibility.md). Node 22 and 24 are the actively maintained targets as of September 2026; Node 18 and 20 remain API-compatibility targets but are upstream EOL. Lazpho is Node-oriented, ESM-only, and makes no browser, CommonJS, Bun, or Deno compatibility promise.
+The supported runtime matrix, twelve public package subpaths, ESM policy, TypeScript range, and framework peer ranges are defined in [Compatibility and public API stability](docs/compatibility.md). Node 22 and 24 are the actively maintained targets as of September 2026; Node 18 and 20 remain API-compatibility targets but are upstream EOL. Lazpho is Node-oriented, ESM-only, and makes no browser, CommonJS, Bun, or Deno compatibility promise.
 
-`lazpho/config` exposes deterministic preset, resolution, validation, and inspection helpers. `lazpho/application` exposes the central application registry and safe scenario dashboard. `lazpho/load-lab` exposes the opt-in endpoint test dashboard and reports. `lazpho/fetch` exposes protected native-fetch integration. `lazpho/node-http` exposes instrumentation and incoming request cancellation primitives. `lazpho/observability` exposes immutable pull collection and manual push export, while `lazpho/opentelemetry` exposes the optional injected-Meter bridge. `lazpho/express`, `lazpho/fastify`, and `lazpho/nestjs` are isolated optional framework adapters. Adapter and Load Lab code are not imported by the main entry point. Adaptive policy internals, EWMA helpers, queue entries, and scheduling helpers are intentionally not public API.
+`lazpho/config` exposes deterministic preset, resolution, validation, and inspection helpers. `lazpho/application` exposes the central application registry and safe scenario dashboard. `lazpho/load-lab` exposes explicit fixture-managed endpoint tests, while `lazpho/openapi-load-lab` and the `lazpho` CLI provide conservative OpenAPI discovery. `lazpho/fetch` exposes protected native-fetch integration. `lazpho/node-http` exposes instrumentation and incoming request cancellation primitives. `lazpho/observability` exposes immutable pull collection and manual push export, while `lazpho/opentelemetry` exposes the optional injected-Meter bridge. `lazpho/express`, `lazpho/fastify`, and `lazpho/nestjs` are isolated optional framework adapters. Adapter and Load Lab code are not imported by the main entry point. Adaptive policy internals, EWMA helpers, queue entries, and scheduling helpers are intentionally not public API.
 
 The package ships ESM JavaScript and TypeScript declarations from `dist`, its documentation, changelog, security policy, contributing guide, README, and MIT license. Benchmarks are environment-specific and demonstrate probing, protection, queue drain, and recovery rather than throughput or latency guarantees. Canonical repository, issue, homepage, and security-reporting metadata point to `diveshshubham/lazpho`.
 
@@ -712,6 +712,7 @@ The package ships ESM JavaScript and TypeScript declarations from `dist`, its do
 - [Operations guide](docs/operations.md): architecture, tuning, failure handling, cardinality, and troubleshooting.
 - [Load Lab](docs/load-lab.md): safe endpoint registration, dashboard actions, reports, and honest RPS interpretation.
 - [Signalboard validation](docs/signalboard-validation.md): reproducible stress, soak, MongoDB A/B, and real-dashboard evidence.
+- [Sagavoya authenticated validation](docs/sagavoya-validation.md): existing-application queue tuning, sustained overload, recovery, and explicit release-gate failures.
 - [MongoDB fault validation](docs/mongodb-fault-validation.md): controlled latency, transport loss, breaker recovery, and mixed-fault soak evidence.
 - [MongoDB replica-set validation](docs/mongodb-replica-set-validation.md): real three-member elections, majority durability checks, and bounded application recovery evidence.
 - [Compatibility contract](docs/compatibility.md): supported runtimes, TypeScript/framework matrix, and public surface.
@@ -723,7 +724,7 @@ The package ships ESM JavaScript and TypeScript declarations from `dist`, its do
 - [1.0 readiness checklist](docs/1.0-readiness.md): machine gates and remaining human/external decisions.
 - [Changelog](CHANGELOG.md), [security policy](SECURITY.md), and [contributing guide](CONTRIBUTING.md).
 
-While the version remains `0.x`, public changes are still reviewed, snapshot-gated, and called out. The documented exports are 1.0 stability candidates; scheduler/EWMA/AIMD internals, queue nodes, benchmarks, and stress/soak harnesses are internal. Deep imports are unsupported. The current release verdict is `NOT_READY_FOR_1_0` until the external and maintainer gates in the readiness checklist are closed.
+Starting with `1.0.0`, the documented exports follow Semantic Versioning and are snapshot-gated. Scheduler/EWMA/AIMD internals, queue nodes, benchmarks, and stress/soak harnesses remain internal. Deep imports are unsupported. See the readiness checklist for the evidence used to approve the stable contract.
 
 ## Manual Adaptive Demo
 
@@ -779,7 +780,7 @@ Release preparation is intentionally maintainer-controlled:
 4. A tag-triggered workflow repeats every release gate, validates one exact tarball, uploads it, checks that the npm version is unused, and publishes that same tarball. Stable versions use `latest`, `beta` prereleases use `beta`, and other prereleases use `next`.
 5. The GitHub Release is created only after npm publication. If that final step fails, recover by creating the GitHub Release manually; never republish or unpublish the immutable npm version.
 
-The package is owned by the authenticated npm maintainer. The tag workflow is prepared for npm trusted publishing from `diveshshubham/lazpho` and `release.yml`; a temporary `NPM_TOKEN` remains only until a subsequent prerelease verifies OIDC provenance. The publish job has scoped `id-token: write`; only the post-publish GitHub Release job receives `contents: write`.
+The package is owned by the npm maintainer. The tag workflow uses npm trusted publishing from `diveshshubham/lazpho` and `release.yml`; it has no long-lived publish token. The publish job has scoped `id-token: write`, and only the post-publish GitHub Release job receives `contents: write`.
 
 `npm run release:check` performs the release-critical local tests without publishing. `npm run release:dry-run` adds deterministic stress and short soak gates. Neither command changes the package version or API snapshots.
 

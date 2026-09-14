@@ -4,7 +4,7 @@ Lazpho follows Semantic Versioning for its documented runtime and TypeScript con
 
 ## What 1.0 will protect
 
-Documented root exports, all eleven declared subpaths, public declarations, error classes/codes/metadata, classifications, configuration fields, preset names/intent, warning codes, metric names and numeric mappings, lifecycle states, application/dashboard ownership, Load Lab safety/report contracts, and framework ownership/error semantics are stable candidates. No current public API is designated experimental.
+Documented root exports, all twelve declared subpaths, the `lazpho` CLI, public declarations, error classes/codes/metadata, classifications, configuration fields, preset names/intent, warning codes, metric names and numeric mappings, lifecycle states, application/dashboard ownership, Load Lab safety/report contracts, and framework ownership/error semantics are stable candidates. No current public API is designated experimental.
 
 Scheduler internals, queue nodes, EWMA/AIMD implementation, breaker implementation, benchmarks, stress/soak harnesses, and undeclared `dist` modules remain internal.
 
