@@ -246,6 +246,7 @@ jobs:
           FAULT_CONCURRENCY: 16
           FAULT_LATENCY_MS: 50
           FAULT_SOAK_SECONDS: 3
+          MONGODB_URI: mongodb://127.0.0.1:27018
         run: npm run test:faults
       - name: MongoDB replica-set election and consistency smoke
         working-directory: examples/feedback-board
