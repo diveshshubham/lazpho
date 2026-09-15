@@ -1,12 +1,65 @@
 # Lazpho
 
-Adaptive concurrency, bounded backpressure, and dependency resilience for Node.js.
+**Keep Node.js services responsive when databases and downstream APIs are under pressure.**
 
-Lazpho helps a Node.js application keep calls to constrained dependencies within explicit concurrency and queue bounds, then adds optional adaptive control, retries, circuit breaking, bulkheads, cancellation, and observability. It has no runtime dependencies and performs no filesystem or network work on the protected-operation path.
+Lazpho is a dependency-resilience library for Node.js. It places explicit concurrency and queue bounds around asynchronous work, helping an application avoid uncontrolled in-flight requests, growing backlogs, cascading latency, and memory pressure when a dependency slows down.
 
-## What Lazpho is not
+It combines fixed or adaptive concurrency, bounded backpressure, bulkhead isolation, circuit breaking, bounded retries, cooperative cancellation, and operational metrics in one zero-runtime-dependency package.
 
-Lazpho is not a rate limiter, reverse proxy, service mesh, distributed scheduler, or automatic request-retry middleware. It protects operations that an application explicitly submits; it does not globally govern routes or coordinate capacity between processes. Presets and adaptive control provide bounded starting behavior, not universally optimal configuration.
+## Why Lazpho exists
+
+Most applications behave well while their dependencies are healthy. Problems begin when demand exceeds the healthy capacity of a database, payment provider, AI API, storage service, or another finite resource. Without an admission boundary, more work continues to enter the system while existing work is already slowing down. Queues grow implicitly in sockets, connection pools, promises, and memory, often turning one slow dependency into an application-wide incident.
+
+Lazpho makes that pressure explicit and bounded:
+
+- **Protect dependency capacity.** Limit simultaneous work to a range the dependency can serve healthily.
+- **Prevent unbounded waiting.** Use finite queues and queue-wait deadlines instead of allowing backlogs to grow invisibly.
+- **Contain failures.** Isolate payment, search, email, AI, storage, and other workloads so one saturated dependency does not consume every available slot.
+- **Recover predictably.** Circuit breaking, cancellation, timeouts, and graceful draining help the application stop adding harmful work and recover cleanly.
+- **Adapt with guardrails.** Optional adaptive control can recommend or apply concurrency changes only within application-defined minimum and maximum bounds.
+- **Observe the trade-offs.** Metrics distinguish accepted work, queue pressure, rejections, timeouts, failures, latency, and controller decisions.
+
+The primary objective is **stability under pressure, not the largest possible requests-per-second result**. During overload, a protected application may deliberately reject excess work while completing admitted work with more predictable latency and recovering sooner. At healthy load, Lazpho adds coordination rather than capacity, so the visible benefit may be small.
+
+## Where Lazpho fits best
+
+Lazpho is most useful around asynchronous work whose concurrency directly affects a finite downstream resource.
+
+| Scenario | How Lazpho helps |
+| --- | --- |
+| Database queries and writes | Keeps active operations aligned with the connection pool and the database's measured healthy capacity |
+| Payment providers | Isolates payment traffic, bounds concurrent provider calls, and fails admission predictably during provider pressure |
+| Email and notification APIs | Prevents a slow provider from consuming capacity needed by unrelated dependencies |
+| AI and inference APIs | Bounds expensive, variable-latency requests and controls how much work may wait |
+| Object storage and external HTTP APIs | Limits sockets and in-flight calls during throttling or degraded response times |
+| Reports and background work | Stops expensive jobs from exhausting interactive application capacity |
+| Variable-capacity dependencies | Adjusts concurrency within explicit bounds using observed latency, errors, throughput, and queue pressure |
+| Graceful deployments | Stops new admission and drains work that was already accepted |
+
+Create controllers around **real capacity pools**, not automatically around every route. Routes sharing one database normally share a database controller; independent services normally use separate controllers or bulkheads.
+
+## When Lazpho is not the right tool
+
+Do not use Lazpho around trivial synchronous code, cached property access, or work that has no constrained asynchronous dependency. It does not make CPU-bound JavaScript parallel; use worker threads or a separate compute service for that workload.
+
+Lazpho also does not replace:
+
+- database connection pools, query/index optimization, or caching;
+- edge rate limiting, per-customer quotas, load balancing, or autoscaling;
+- a durable broker or job queue such as BullMQ, Kafka, or SQS;
+- cross-process or cross-host concurrency coordination;
+- authorization, transaction design, payment idempotency, or reconciliation;
+- a reverse proxy, service mesh, tracing backend, APM platform, or production load generator.
+
+Controllers are process-local. For example, ten application replicas using a local limit of ten may collectively start approximately one hundred operations. Limits must therefore be chosen with replica count and downstream capacity in mind.
+
+## Controlled rejection is a safety mechanism
+
+When the configured queue is full, its wait deadline expires, or a circuit breaker is open, Lazpho rejects work explicitly instead of hiding overload in an ever-growing backlog. The application should map that outcome to an appropriate response, commonly `503 Service Unavailable`, and decide whether a bounded retry with backoff is safe.
+
+Rejection should be exceptional overload behavior—not the normal state of a healthy application. Persistent rejection means the controller is too restrictive for the intended workload or the underlying dependency needs optimization, caching, additional capacity, or scaling. Increasing queue size alone only permits more waiting; it does not create capacity.
+
+For payments and other critical mutations, combine Lazpho with an idempotency key and a durable workflow. Queue-admission failures occur before the submitted operation begins, but an execution timeout or lost client connection can be ambiguous because downstream work may already have started. Do not blindly retry an ambiguous mutation: query the provider using the idempotency key, process its webhook, or reconcile the durable pending record. Lazpho protects capacity; it does not provide delivery guarantees or transaction semantics.
 
 ## Install
 

@@ -2,6 +2,13 @@
 
 Notable changes are recorded here using a concise Keep-a-Changelog-inspired structure.
 
+## 1.0.1 - 2026-09-15
+
+### Changed
+
+- Reworked the README introduction to explain Lazpho's stability-first objective, principal advantages, best-fit dependency workloads, inappropriate use cases, and process-local limits more clearly.
+- Documented controlled rejection as an overload-safety mechanism and clarified the additional idempotency, durable-workflow, and reconciliation requirements for payments and other critical mutations.
+
 ## 1.0.0 - 2026-09-14
 
 ### Added

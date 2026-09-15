@@ -1,6 +1,6 @@
 {
   "name": "lazpho",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Adaptive concurrency, bounded backpressure, and dependency resilience for Node.js.",
   "license": "MIT",
   "repository": {
